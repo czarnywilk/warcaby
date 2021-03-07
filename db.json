@@ -1,0 +1,11 @@
+{
+  "games":
+          [
+            {
+              "currentPlayer" : "Player 1"
+            },
+            {
+              "currentPlayer" : "Player 2"
+            }
+          ]
+}
