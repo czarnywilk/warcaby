@@ -1,33 +1,35 @@
 {
-  "games":
-          [
-            "game 1":
-            [
-              {
-                "currentPlayer": "Player 1"
-              },
-              {
-                "playerName": "Player 1",
-                "score" : 1234,
-                "lastMove":
-                [
-                  "fromx": 1,
-                  "fromy": 1,
-                  "tox": 2,
-                  "toy": 2 
-                ]
-              }
-              {
-                "playerName": "Player 2",
-                "score" : 4321,
-                "lastMove":
-                [
-                  "fromx": 8,
-                  "fromy": 8,
-                  "tox": 7,
-                  "toy": 7 
-                ]
-              }
+    "games": [
+        {
+            "game 1": [
+                {
+                    "currentPlayer": "Player 1"
+                },
+                {
+                    "playerName": "Player 1",
+                    "score": 1234,
+                    "lastMove": [
+                        {
+                        "fromx": 1,
+                        "fromy": 1,
+                        "tox": 2,
+                        "toy": 2
+                        }
+                    ]
+                },
+                {
+                    "playerName": "Player 2",
+                    "score": 4321,
+                    "lastMove": [
+                        {
+                        "fromx": 8,
+                        "fromy": 8,
+                        "tox": 7,
+                        "toy": 7
+                        }
+                    ]
+                }                
             ]
-          ]
+        }
+    ]
 }
