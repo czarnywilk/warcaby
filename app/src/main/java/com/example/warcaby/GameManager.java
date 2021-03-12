@@ -12,13 +12,7 @@ import com.example.warcaby.multiplayer.PlaceholderUtility;
 import com.example.warcaby.multiplayer.serialized.Game;
 import com.example.warcaby.multiplayer.serialized.Player;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
-
-import javax.xml.XMLConstants;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,9 +20,21 @@ import retrofit2.Response;
 
 public class GameManager {
 
+    public interface ServerCallbackListener {
+        public void onServerResponse();
+        public void onServerFailed();
+    }
+
+    public static ServerCallbackListener listener;
+    public static void setServerCallbackListerer(ServerCallbackListener listener){
+        GameManager.listener = listener;
+    }
+
+    private static Player userPlayer;
     private static Context mContext;
     public static void setContext(Context context) {
         mContext = context;
+        listener = null;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -42,7 +48,7 @@ public class GameManager {
         Objects.requireNonNull(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)).getState() ==
                 NetworkInfo.State.CONNECTED;
     }
-
+// ------------------CREATE-----------------------
     public static void createGame (Game game) {
         Call<Game> call = PlaceholderUtility.getPlaceholderInstance().createGame(game);
 
@@ -67,6 +73,29 @@ public class GameManager {
             }
         });
     }
+
+    public static void createPlayer(Player player) {
+        Call<Game> call = PlaceholderUtility.getPlaceholderInstance().createPlayer(player);
+        call.enqueue(new Callback<Game>() {
+            @Override
+            public void onResponse(Call<Game> call, Response<Game> response) {
+
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                Toast.makeText(mContext,"Gracz został stworzony!", Toast.LENGTH_SHORT).show();
+                player.setId(response.body().getId());
+                listener.onServerResponse();
+            }
+
+            @Override
+            public void onFailure(Call<Game> call, Throwable t) {
+                listener.onServerFailed();
+            }
+        });
+    }
+
+    // -------------------- GETTERS --------------------------
     public static void getGame (String gameId) {
         Call<Game> call = PlaceholderUtility.getPlaceholderInstance().getGame(gameId);
 
@@ -86,22 +115,16 @@ public class GameManager {
         });
     }
 
-    public static void createPlayer(Player player) {
-        Call<Game> call = PlaceholderUtility.getPlaceholderInstance().createPlayer(player);
+    public static Player getUserPlayer() {
+        return userPlayer;
+    }
 
-        call.enqueue(new Callback<Game>() {
-            @Override
-            public void onResponse(Call<Game> call, Response<Game> response) {
-                if (!response.isSuccessful()) {
-                    return;
-                }
-                Toast.makeText(mContext,"Gracz został stworzony!", Toast.LENGTH_SHORT).show();
-                player.setId(response.body().getId());
-            }
+    public static Context getmContext() {
+        return mContext;
+    }
+    // -------------------SETTERS----------------------
 
-            @Override
-            public void onFailure(Call<Game> call, Throwable t) {
-            }
-        });
+    public static void setUserPlayer(Player userPlayer) {
+        GameManager.userPlayer = userPlayer;
     }
 }

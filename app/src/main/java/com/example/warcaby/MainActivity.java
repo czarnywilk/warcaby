@@ -867,4 +867,17 @@ public class MainActivity extends AppCompatActivity {
             else return 9-this.y;
         }
     }
+    void stringToTable (String input){
+        for (int i = 0; i < 32; i++){
+            tablica[i].setPawn(Character.getNumericValue(input.charAt(i)));
+        }
+    }
+
+    String tableToString(){
+        String result = "";
+        for (int i = 0; i < 32; i++){
+            result += Integer.toString(tablica[i].pawn);
+        }
+        return result;
+    }
 }

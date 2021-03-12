@@ -14,14 +14,17 @@ public class Game {
     private Integer whitePlayerId = null;
     @SerializedName("blackPlayerId")
     private Integer blackPlayerId = null;
+    @SerializedName("gameName")
+    private String gameName;
     private int id;
 
     /*public Game() {
         // board = Board.getEmptyBoard();
         // zawsze białe na dole
     }*/
-    public Game(String board) {
-        this.board = board;
+    public Game(String gameName) {
+        // board = Board.getEmptyBoard();
+        this.gameName = gameName;
     }
 
     // ------------------------ GETTERS ------------------------
@@ -48,9 +51,7 @@ public class Game {
     public void setWhiteAndBlackPlayerId(Integer whitePlayerId, Integer blackPlayerId) {
         this.whitePlayerId = whitePlayerId;
         this.blackPlayerId = blackPlayerId;
-
-        int random = new Random().nextInt(100);
-        this.currentPlayerId = (random > 50) ? whitePlayerId : blackPlayerId;
+        this.currentPlayerId = whitePlayerId;
     }
     // ------------------------ METHODS ------------------------
     public void startGame() {
