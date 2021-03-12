@@ -1,11 +1,13 @@
 package com.example.warcaby.multiplayer;
 
+import com.google.gson.GsonBuilder;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PlaceholderUtility {
 
-    private static final String BaseUrl = "https://my-json-server.typicode.com/czarnywilk/warcaby";
+    private static final String BaseUrl = "https://hungry-sheep-91.loca.lt";
 
     private static boolean instanceCreated = false;
     private static Retrofit retrofitInstance;
@@ -23,7 +25,8 @@ public class PlaceholderUtility {
         if (!instanceCreated) {
             return new Retrofit.Builder()
                     .baseUrl(BaseUrl)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(
+                            new GsonBuilder().serializeNulls().create()))
                     .build();
         }
         else return retrofitInstance;
