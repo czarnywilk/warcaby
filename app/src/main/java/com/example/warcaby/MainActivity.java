@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     public Button buttons[] = new Button[32];
-    MyField tablica[] = new MyField[32];
+    private static MyField tablica[] = new MyField[32];
+    public static final String cleanBoard = "11111111000000000000000022222222";
     int nrGracza = 1;
     boolean select = false;
     boolean hit = false;
@@ -867,13 +868,14 @@ public class MainActivity extends AppCompatActivity {
             else return 9-this.y;
         }
     }
-    void stringToTable (String input){
+
+    public static void stringToBoard (String input){
         for (int i = 0; i < 32; i++){
             tablica[i].setPawn(Character.getNumericValue(input.charAt(i)));
         }
     }
 
-    String tableToString(){
+    public static String boardToString(){
         String result = "";
         for (int i = 0; i < 32; i++){
             result += Integer.toString(tablica[i].pawn);

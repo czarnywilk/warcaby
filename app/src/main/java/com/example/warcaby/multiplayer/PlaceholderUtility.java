@@ -7,22 +7,24 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PlaceholderUtility {
 
-    private static final String BaseUrl = "https://mean-bat-45.loca.lt";
+    private static final String BaseUrl = "https://bitter-moose-5.loca.lt";
 
-    private static boolean instanceCreated = false;
+    private static boolean initialized = false;
     private static Retrofit retrofitInstance;
 
     private static JsonPlaceholderAPI placeholderInstance;
 
     public static void initialize() {
+        if (initialized) return;
+
         retrofitInstance = createRetrofitInstance();
         placeholderInstance = retrofitInstance.create(JsonPlaceholderAPI.class);
-        instanceCreated = true;
+        initialized = true;
     }
 
     // --------------- Retrofit --------------------
     private static Retrofit createRetrofitInstance() {
-        if (!instanceCreated) {
+        if (!initialized) {
             return new Retrofit.Builder()
                     .baseUrl(BaseUrl)
                     .addConverterFactory(GsonConverterFactory.create(
@@ -30,8 +32,6 @@ public class PlaceholderUtility {
                     .build();
         }
         else return retrofitInstance;
-        //JsonPlaceholderAPI placeholder = retrofit.create(JsonPlaceholderAPI.class);
-        //Call<Post> call = placeholder.getPost(cityName, MainActivity.AppId);
     }
     public static Retrofit getRetrofitInstance() {
         return retrofitInstance;
