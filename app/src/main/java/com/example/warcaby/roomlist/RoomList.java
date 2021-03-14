@@ -29,7 +29,6 @@ public class RoomList extends AppCompatActivity {
 
         GameManager.setContext(this); // uruchomic raz na activity
 
-
         Button createRoom = findViewById(R.id.createRoomButton);
         EditText gameName = findViewById(R.id.roomNameInput);
 
@@ -42,7 +41,6 @@ public class RoomList extends AppCompatActivity {
                 int random = new Random().nextInt(100);
                 if(random > 50)
                     game.setWhitePlayerId(GameManager.getUserPlayer().getId());
-
                 else
                     game.setBlackPlayerId(GameManager.getUserPlayer().getId());
 
@@ -60,13 +58,11 @@ public class RoomList extends AppCompatActivity {
                     }
                 });
             }
-
-
         });
 
 
         //region recycler view setup
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = findViewById(R.id.recyclerViewGames);
         recyclerView.setHasFixedSize(true);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getBaseContext());

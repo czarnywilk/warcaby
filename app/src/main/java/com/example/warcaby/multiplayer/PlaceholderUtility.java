@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PlaceholderUtility {
 
-    private static final String BaseUrl = "https://bitter-moose-5.loca.lt";
+    private static final String BaseUrl = "https://ordinary-moose-67.loca.lt";
 
     private static boolean initialized = false;
     private static Retrofit retrofitInstance;

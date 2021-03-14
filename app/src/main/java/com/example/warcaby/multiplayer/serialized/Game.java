@@ -44,7 +44,6 @@ public class Game {
     public String getGameName() {
         return gameName;
     }
-
     public Integer getPlayersCount() {
         if (whitePlayerId == null && blackPlayerId == null) {
             return 0;
@@ -61,12 +60,10 @@ public class Game {
     public void setId(int id) {
         this.id = id;
     }
-
     public void setWhitePlayerId(Integer whitePlayerId) {
         this.whitePlayerId = whitePlayerId;
         this.currentPlayerId = whitePlayerId;
     }
-
     public void setBlackPlayerId(Integer blackPlayerId) {
         this.blackPlayerId = blackPlayerId;
     }

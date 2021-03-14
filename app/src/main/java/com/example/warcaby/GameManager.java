@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.warcaby.lobby.Lobby;
@@ -56,7 +57,7 @@ public class GameManager {
                 NetworkInfo.State.CONNECTED;
     }
 
-    // -------------------- JOIN -------------------------
+    // -------------------- EDIT -------------------------
     public static void joinGame (Game game) {
         Call<Game> call = PlaceholderUtility.getPlaceholderInstance().
                 editGame(game.getId(), game);
@@ -68,12 +69,35 @@ public class GameManager {
                     return;
                 }
                 Toast.makeText(mContext,"Joined Game!", Toast.LENGTH_SHORT).show();
+
+                GameManager.userPlayer.setGameId(response.body().getId());
+                GameManager.updatePlayer(userPlayer);
                 mContext.startActivity(new Intent(mContext, Lobby.class));
+
                 //listener.onServerResponse(null);
             }
 
             @Override
             public void onFailure(Call<Game> call, Throwable t) {
+                //listener.onServerFailed();
+            }
+        });
+    }
+    public static void updatePlayer (Player updatedPlayer) {
+        Call<Player> call = PlaceholderUtility.getPlaceholderInstance().
+                editPlayer(updatedPlayer.getId(), updatedPlayer);
+
+        call.enqueue(new Callback<Player>() {
+            @Override
+            public void onResponse(Call<Player> call, Response<Player> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                //listener.onServerResponse(null);
+            }
+
+            @Override
+            public void onFailure(Call<Player> call, Throwable t) {
                 //listener.onServerFailed();
             }
         });
@@ -97,6 +121,9 @@ public class GameManager {
                 game.setId(gameResponse.getId());
                 game.setWhitePlayerId(gameResponse.getWhitePlayerId());
                 game.setBlackPlayerId(gameResponse.getBlackPlayerId());
+
+                GameManager.userPlayer.setGameId(gameResponse.getId());
+                GameManager.updatePlayer(userPlayer);
 
                 listener.onServerResponse(null);
             }
@@ -171,6 +198,24 @@ public class GameManager {
 
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
+                Toast.makeText(mContext,"Connection failed!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    public static void getPlayersFromGame (Integer gameId) {
+        Call<List<Player>> call = PlaceholderUtility.getPlaceholderInstance().getPlayersFromGame(gameId);
+        call.enqueue(new Callback<List<Player>>() {
+            @Override
+            public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(mContext,"Connection unsuccessful!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                listener.onServerResponse(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<List<Player>> call, Throwable t) {
                 Toast.makeText(mContext,"Connection failed!", Toast.LENGTH_SHORT).show();
             }
         });
