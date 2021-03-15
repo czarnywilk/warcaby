@@ -13,6 +13,7 @@ import com.example.warcaby.R;
 import com.example.warcaby.multiplayer.PlaceholderUtility;
 import com.example.warcaby.multiplayer.serialized.Player;
 import com.example.warcaby.roomlist.RoomList;
+import com.example.warcaby.service.QuitAppService;
 
 public class MainMenu extends AppCompatActivity {
 
@@ -23,6 +24,7 @@ public class MainMenu extends AppCompatActivity {
 
         GameManager.setContext(this); // uruchomic raz na activity
         PlaceholderUtility.initialize(); // raz na cala aplikacje
+        startService(new Intent(getBaseContext(), QuitAppService.class)); // raz na cala aplikacje
 
         Button enterGame = findViewById(R.id.startGameButton);
         EditText playerName = findViewById(R.id.playerNameInput);

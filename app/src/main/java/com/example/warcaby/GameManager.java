@@ -231,4 +231,42 @@ public class GameManager {
     public static void setUserPlayer(Player userPlayer) {
         GameManager.userPlayer = userPlayer;
     }
+    //---------------DELETE---------------------
+    public static void deletePlayer (Integer deletePlayerId) {
+        Call<Player> call = PlaceholderUtility.getPlaceholderInstance().
+                deletePlayer(deletePlayerId);
+
+        call.enqueue(new Callback<Player>() {
+            @Override
+            public void onResponse(Call<Player> call, Response<Player> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                //listener.onServerResponse(null);
+            }
+
+            @Override
+            public void onFailure(Call<Player> call, Throwable t) {
+                //listener.onServerFailed();
+            }
+        });
+    }
+    public static void deleteGame (Integer gameId) {
+            Call<Game> call = PlaceholderUtility.getPlaceholderInstance().
+                    deleteGame(gameId);
+        call.enqueue(new Callback<Game>() {
+            @Override
+            public void onResponse(Call<Game> call, Response<Game> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+                //listener.onServerResponse(null);
+            }
+
+            @Override
+            public void onFailure(Call<Game> call, Throwable t) {
+                //listener.onServerFailed();
+            }
+        });
+    }
 }

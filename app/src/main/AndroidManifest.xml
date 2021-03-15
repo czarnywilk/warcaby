@@ -22,6 +22,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
+        <service
+            android:name="com.example.warcaby.service.QuitAppService"
+            android:stopWithTask="false" />
     </application>
 
 </manifest>

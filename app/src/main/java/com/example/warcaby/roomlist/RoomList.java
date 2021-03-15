@@ -1,11 +1,14 @@
 package com.example.warcaby.roomlist;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class RoomList extends AppCompatActivity {
+
+    ArrayList<Game> roomList;
+    RoomAdapter roomAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,21 +72,41 @@ public class RoomList extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getBaseContext());
-        ArrayList<Game> roomList = new ArrayList<>();
-        RoomAdapter roomAdapter = new RoomAdapter(roomList);
+        roomList = new ArrayList<>();
+        roomAdapter = new RoomAdapter(roomList);
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(roomAdapter);
         //endregion
 
         //refresh every x seconds
+        Handler handler =  new Handler();
+        Runnable runnable = new Runnable(){
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void run() {
+                if (GameManager.hasInternetAccess())
+                    Refresh();
+                handler.postDelayed(this, 3000);// 3 sec
+            }
+        };
+        handler.postDelayed(runnable, 3000);
+
+
+    }
+    void Refresh(){
         try {
+            roomList.clear();
             GameManager.getGames();
             GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
                 @Override
                 public void onServerResponse(Object obj) {
-                    roomList.addAll((ArrayList)obj);
-                    roomAdapter.notifyDataSetChanged();
+                    if(obj!=null){
+                        roomList
+                                .addAll((ArrayList)obj);
+                        roomAdapter.notifyDataSetChanged();
+                    }
+                    Log.d("test","refresh");
                 }
 
                 @Override
@@ -88,7 +114,6 @@ public class RoomList extends AppCompatActivity {
 
                 }
             });
-
         }
         catch (Exception e) {
             Log.d("test", e.getMessage());
