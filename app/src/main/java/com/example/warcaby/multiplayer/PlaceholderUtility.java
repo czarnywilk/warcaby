@@ -1,5 +1,7 @@
 package com.example.warcaby.multiplayer;
 
+import android.util.Log;
+
 import com.google.gson.GsonBuilder;
 
 import retrofit2.Retrofit;
@@ -7,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PlaceholderUtility {
 
-    private static final String BaseUrl = "https://black-otter-43.loca.lt";
+    private static final String BaseUrl = "https://dangerous-jellyfish-82.loca.lt";
 
     private static boolean initialized = false;
     private static Retrofit retrofitInstance;
@@ -39,6 +41,7 @@ public class PlaceholderUtility {
 
     // -------------- Placeholder -------------------
     public static JsonPlaceholderAPI getPlaceholderInstance() {
+        if (placeholderInstance == null)System.out.println("PLACEHOLDER NULL");
         return placeholderInstance;
     }
 }

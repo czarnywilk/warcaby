@@ -25,8 +25,10 @@ import java.util.Random;
 
 public class RoomList extends AppCompatActivity {
 
-    ArrayList<Game> roomList;
-    RoomAdapter roomAdapter;
+    private ArrayList<Game> roomList;
+    private RoomAdapter roomAdapter;
+    private static Handler handler;
+    private static Runnable runnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,33 @@ public class RoomList extends AppCompatActivity {
 
         Button createRoom = findViewById(R.id.createRoomButton);
         EditText gameName = findViewById(R.id.roomNameInput);
+
+
+        //region recycler view setup
+        RecyclerView recyclerView = findViewById(R.id.recyclerViewGames);
+        recyclerView.setHasFixedSize(true);
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getBaseContext());
+        roomList = new ArrayList<>();
+        roomAdapter = new RoomAdapter(roomList);
+
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(roomAdapter);
+        //endregion
+
+        //region refresh every x seconds
+        handler =  new Handler();
+        runnable = new Runnable(){
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void run() {
+                if (GameManager.hasInternetAccess())
+                    Refresh();
+                handler.postDelayed(this, 10000);// 3 sec
+            }
+        };
+        handler.postDelayed(runnable, 10000);
+        //endregion
 
         createRoom.setOnClickListener(v -> {
             String Name = gameName.getText().toString();
@@ -54,6 +83,7 @@ public class RoomList extends AppCompatActivity {
                 GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
                     @Override
                     public void onServerResponse(Object obj) {
+                        removeRefreshCallbacks();
                         startActivity(new Intent(RoomList.this, Lobby.class));
                     }
 
@@ -65,36 +95,8 @@ public class RoomList extends AppCompatActivity {
                 });
             }
         });
-
-
-        //region recycler view setup
-        RecyclerView recyclerView = findViewById(R.id.recyclerViewGames);
-        recyclerView.setHasFixedSize(true);
-
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getBaseContext());
-        roomList = new ArrayList<>();
-        roomAdapter = new RoomAdapter(roomList);
-
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(roomAdapter);
-        //endregion
-
-        //refresh every x seconds
-        Handler handler =  new Handler();
-        Runnable runnable = new Runnable(){
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-            @Override
-            public void run() {
-                if (GameManager.hasInternetAccess())
-                    Refresh();
-                handler.postDelayed(this, 3000);// 3 sec
-            }
-        };
-        handler.postDelayed(runnable, 3000);
-
-
     }
-    void Refresh(){
+    private void Refresh(){
         try {
             roomList.clear();
             GameManager.getGames();
@@ -102,11 +104,9 @@ public class RoomList extends AppCompatActivity {
                 @Override
                 public void onServerResponse(Object obj) {
                     if(obj!=null){
-                        roomList
-                                .addAll((ArrayList)obj);
+                        roomList.addAll((ArrayList)obj);
                         roomAdapter.notifyDataSetChanged();
                     }
-                    Log.d("test","refresh");
                 }
 
                 @Override
@@ -118,5 +118,8 @@ public class RoomList extends AppCompatActivity {
         catch (Exception e) {
             Log.d("test", e.getMessage());
         }
+    }
+    public static void removeRefreshCallbacks() {
+        handler.removeCallbacks(runnable);
     }
 }

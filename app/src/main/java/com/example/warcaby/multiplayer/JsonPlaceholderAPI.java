@@ -17,13 +17,10 @@ public interface JsonPlaceholderAPI {
     Call<List<Player>> getPlayersFromGame(@Query("gameId") Integer gameId);
 
 
-
     @POST("games")
     Call<Game> createGame(@Body Game game);
     @POST("players")
     Call<Game> createPlayer(@Body Player player);
-
-
 
 
     @DELETE("games/{id}")
@@ -36,5 +33,4 @@ public interface JsonPlaceholderAPI {
     Call<Game> editGame (@Path("id") Integer gameId, @Body Game game);
     @PUT("players/{id}")
     Call<Player> editPlayer(@Path("id") Integer playerId, @Body Player player);
-
 }

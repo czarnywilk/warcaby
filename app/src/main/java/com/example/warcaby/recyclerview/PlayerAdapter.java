@@ -3,15 +3,12 @@ package com.example.warcaby.recyclerview;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.warcaby.GameManager;
 import com.example.warcaby.R;
-import com.example.warcaby.multiplayer.serialized.Game;
 import com.example.warcaby.multiplayer.serialized.Player;
 
 import java.util.ArrayList;

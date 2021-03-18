@@ -6,6 +6,11 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.example.warcaby.GameManager;
+import com.example.warcaby.multiplayer.serialized.Game;
+import com.example.warcaby.multiplayer.serialized.Player;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class QuitAppService extends Service {
 
@@ -16,22 +21,39 @@ public class QuitAppService extends Service {
 
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
-            Log.d("test", "Service Started");
             return START_NOT_STICKY;
         }
 
         @Override
         public void onDestroy() {
+
+            Game game = GameManager.getUserGame();
+            Integer playerId = GameManager.getUserPlayer().getId();
+
+            System.out.println("game name: " + game.getGameName());
+            if (game != null) {
+                System.out.println("GAME ID: " + game.getId());
+                GameManager.deleteGame(game.getId()); // <--- this mf line is deleting game AND players (WHY?!?!)
+                System.out.println("2");
+
+                //Player secondPlayer = GameManager.getSecondPlayer();
+                //System.out.println("second player: " + secondPlayer.getPlayerName());
+                //secondPlayer.setGameId(null);
+                //GameManager.updatePlayer(secondPlayer);
+
+                System.out.println("3");
+                //GameManager.deletePlayer(playerId);
+                System.out.println("4");
+            }
+
             super.onDestroy();
-            Log.d("test", "Service Destroyed");
         }
 
         @Override
         public void onTaskRemoved(Intent rootIntent) {
-            Log.e("test", "END");
-            if(GameManager.getUserPlayer().getGameId()!=null)
-                GameManager.deleteGame(GameManager.getUserPlayer().getGameId());
-            GameManager.deletePlayer(GameManager.getUserPlayer().getId());
+
+
+
             stopSelf();
         }
 }

@@ -18,6 +18,7 @@ import com.example.warcaby.recyclerview.PlayerAdapter;
 import com.example.warcaby.recyclerview.RoomAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.warcaby.GameManager.hasInternetAccess;
 
@@ -53,10 +54,12 @@ public class Lobby extends AppCompatActivity {
             public void run() {
                 if (GameManager.hasInternetAccess())
                     Refresh();
-                handler.postDelayed(this, 3000);// 3 sec
+                handler.postDelayed(this, 10000);// 3 sec
             }
         };
-        handler.postDelayed(runnable, 3000);
+        handler.postDelayed(runnable, 10000);
+
+        // REMEMBER TO REMOVE CALLBACKS FROM HANDLER (its running on another thread)
 
     }
     void Refresh(){
@@ -67,7 +70,18 @@ public class Lobby extends AppCompatActivity {
             GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
                 @Override
                 public void onServerResponse(Object obj) {
-                    playersList.addAll((ArrayList)obj);
+                    List<Player> players = (ArrayList)obj;
+
+                    if (GameManager.getSecondPlayer() == null) {
+                        for (Player p : players) {
+                            if (!p.getId().equals(GameManager.getUserPlayer().getId())) {
+                                GameManager.setSecondPlayer(p);
+                                break;
+                            }
+                        }
+                    }
+
+                    playersList.addAll(players);
                     playerAdapter.notifyDataSetChanged();
                 }
 
@@ -79,7 +93,7 @@ public class Lobby extends AppCompatActivity {
 
         }
         catch (Exception e) {
-            Log.d("test", e.getMessage());
+            Log.e("test", e.getMessage());
         }
     }
 }
