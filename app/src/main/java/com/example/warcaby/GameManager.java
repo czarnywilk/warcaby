@@ -134,7 +134,6 @@ public class GameManager {
     }
 
     public static Player getUserPlayer() {
-        if (userPlayer == null) System.out.println("USER PLAYER NULL");
         return userPlayer;
     }
     public static Player getSecondPlayer() {
@@ -159,6 +158,26 @@ public class GameManager {
     }
 
     // -------------------- EDIT -------------------------
+    public static void updateGame (Game game) {
+        Call<Game> call = PlaceholderUtility.getPlaceholderInstance().
+                editGame(game.getId(), game);
+
+        call.enqueue(new Callback<Game>() {
+            @Override
+            public void onResponse(Call<Game> call, Response<Game> response) {
+                if (!response.isSuccessful()) {
+                    return;
+                }
+
+                //listener.onServerResponse(null);
+            }
+
+            @Override
+            public void onFailure(Call<Game> call, Throwable t) {
+                //listener.onServerFailed();
+            }
+        });
+    }
     public static void joinGame (Game game) {
         Call<Game> call = PlaceholderUtility.getPlaceholderInstance().
                 editGame(game.getId(), game);
@@ -176,7 +195,7 @@ public class GameManager {
 
                 GameManager.setUserGame(gameResponse);
                 GameManager.userPlayer.setGameId(gameResponse.getId());
-                GameManager.updatePlayer(userPlayer);
+                GameManager.updatePlayer(userPlayer, false);
 
                 RoomList.removeRefreshCallbacks();
                 mContext.startActivity(new Intent(mContext, Lobby.class));
@@ -190,7 +209,7 @@ public class GameManager {
             }
         });
     }
-    public static void updatePlayer (Player updatedPlayer) {
+    public static void updatePlayer (Player updatedPlayer, boolean setResponse) {
         Call<Player> call = PlaceholderUtility.getPlaceholderInstance().
                 editPlayer(updatedPlayer.getId(), updatedPlayer);
 
@@ -200,7 +219,8 @@ public class GameManager {
                 if (!response.isSuccessful()) {
                     return;
                 }
-                //listener.onServerResponse(null);
+                if (setResponse)
+                    listener.onServerResponse(null);
             }
 
             @Override
@@ -231,7 +251,7 @@ public class GameManager {
 
                 GameManager.setUserGame(gameResponse);
                 GameManager.userPlayer.setGameId(gameResponse.getId());
-                GameManager.updatePlayer(userPlayer);
+                GameManager.updatePlayer(userPlayer, false);
 
                 listener.onServerResponse(null);
             }

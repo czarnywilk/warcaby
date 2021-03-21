@@ -32,22 +32,41 @@ public class MainMenu extends AppCompatActivity {
         enterGame.setOnClickListener(v -> {
             String Name = playerName.getText().toString();
             if(!Name.isEmpty()){
+                if (GameManager.getUserPlayer() == null) {
+                    GameManager.setUserPlayer(new Player(Name, null));
+                    GameManager.createPlayer(GameManager.getUserPlayer());
 
-                GameManager.setUserPlayer(new Player(Name,null));
-                GameManager.createPlayer(GameManager.getUserPlayer());
+                    GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
+                        @Override
+                        public void onServerResponse(Object obj) {
+                            enterGame.setText("Change name");
+                            startActivity(new Intent(MainMenu.this, RoomList.class));
+                        }
 
-                GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
-                    @Override
-                    public void onServerResponse(Object obj) {
-                        startActivity(new Intent(MainMenu.this, RoomList.class));
-                    }
+                        @Override
+                        public void onServerFailed() {
+                            Toast.makeText(GameManager.getContext(),
+                                    "Connection failed!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                else {
+                    GameManager.getUserPlayer().setPlayerName(Name);
+                    GameManager.updatePlayer(GameManager.getUserPlayer(), true);
 
-                    @Override
-                    public void onServerFailed() {
-                        Toast.makeText(GameManager.getContext(),
-                                "Connection failed!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
+                        @Override
+                        public void onServerResponse(Object obj) {
+                            startActivity(new Intent(getApplicationContext(), RoomList.class));
+                        }
+
+                        @Override
+                        public void onServerFailed() {
+                            Toast.makeText(GameManager.getContext(),
+                                    "Connection failed!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
     }

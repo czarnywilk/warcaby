@@ -62,9 +62,11 @@ public class Game {
     }
     public void setWhitePlayerId(Integer whitePlayerId) {
         this.whitePlayerId = whitePlayerId;
-        this.currentPlayerId = whitePlayerId;
     }
     public void setBlackPlayerId(Integer blackPlayerId) {
         this.blackPlayerId = blackPlayerId;
+    }
+    public void setCurrentPlayerId(Integer currentPlayerId) {
+        this.currentPlayerId = currentPlayerId;
     }
 }

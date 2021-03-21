@@ -48,6 +48,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
                             Game _game = (Game) obj;
                             if (_game.getCurrentPlayerId() == null) {
                                 _game.setWhitePlayerId(GameManager.getUserPlayer().getId());
+                                _game.setCurrentPlayerId(GameManager.getUserPlayer().getId());
                             }
                             else {
                                 _game.setBlackPlayerId(GameManager.getUserPlayer().getId());

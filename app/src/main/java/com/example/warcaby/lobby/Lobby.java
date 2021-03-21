@@ -57,7 +57,7 @@ public class Lobby extends AppCompatActivity {
                 handler.postDelayed(this, 10000);// 3 sec
             }
         };
-        handler.postDelayed(runnable, 10000);
+        handler.postDelayed(runnable, 0);
 
         // REMEMBER TO REMOVE CALLBACKS FROM HANDLER (its running on another thread)
 
@@ -73,9 +73,17 @@ public class Lobby extends AppCompatActivity {
                     List<Player> players = (ArrayList)obj;
 
                     if (GameManager.getSecondPlayer() == null) {
+                        Game game = GameManager.getUserGame();
                         for (Player p : players) {
                             if (!p.getId().equals(GameManager.getUserPlayer().getId())) {
                                 GameManager.setSecondPlayer(p);
+                                if (game.getWhitePlayerId() == null) {
+                                    game.setWhitePlayerId(p.getId());
+                                    game.setCurrentPlayerId(p.getId());
+                                }
+                                else if (game.getBlackPlayerId() == null) {
+                                    game.setBlackPlayerId(p.getId());
+                                }
                                 break;
                             }
                         }

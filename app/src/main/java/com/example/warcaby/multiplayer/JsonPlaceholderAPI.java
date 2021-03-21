@@ -29,8 +29,8 @@ public interface JsonPlaceholderAPI {
     Call<Player> deletePlayer (@Path("id") Integer PlayerId);
 
 
-    @PUT("games/{id}")
+    @PATCH("games/{id}")
     Call<Game> editGame (@Path("id") Integer gameId, @Body Game game);
-    @PUT("players/{id}")
+    @PATCH("players/{id}")
     Call<Player> editPlayer(@Path("id") Integer playerId, @Body Player player);
 }

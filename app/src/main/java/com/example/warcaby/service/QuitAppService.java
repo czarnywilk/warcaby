@@ -25,25 +25,35 @@ public class QuitAppService extends Service {
         }
 
         @Override
-        public void onDestroy() {
+        public void onDestroy() { // doesn't guarantee to be invoked (should be onPause / onStop)
 
             Game game = GameManager.getUserGame();
             Integer playerId = GameManager.getUserPlayer().getId();
 
-            System.out.println("game name: " + game.getGameName());
             if (game != null) {
-                System.out.println("GAME ID: " + game.getId());
-                GameManager.deleteGame(game.getId()); // <--- this mf line is deleting game AND players (WHY?!?!)
-                System.out.println("2");
+                if (GameManager.getSecondPlayer() == null) {
+                    GameManager.deleteGame(game.getId()); // deletes both player and game
+                }
+                else {
+                    GameManager.deletePlayer(playerId);
 
-                //Player secondPlayer = GameManager.getSecondPlayer();
-                //System.out.println("second player: " + secondPlayer.getPlayerName());
-                //secondPlayer.setGameId(null);
-                //GameManager.updatePlayer(secondPlayer);
+                    // edit game: set null(s) in game
+                    if (game.getWhitePlayerId().equals(playerId)) {
+                        game.setWhitePlayerId(null);
+                    }
+                    else if (game.getBlackPlayerId().equals(playerId)) {
+                        game.setBlackPlayerId(null);
+                    }
 
-                System.out.println("3");
-                //GameManager.deletePlayer(playerId);
-                System.out.println("4");
+                    if (game.getCurrentPlayerId().equals(playerId)) {
+                        game.setCurrentPlayerId(null);
+                    }
+
+                    GameManager.updateGame(game);
+                }
+            }
+            else {
+                GameManager.deletePlayer(playerId);
             }
 
             super.onDestroy();

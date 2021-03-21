@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 public class Player {
 
     @SerializedName("playerName")
-    private final String playerName;
+    private String playerName;
     @SerializedName("gameId")
     private Integer gameId = null;
     private int id;
@@ -31,5 +31,8 @@ public class Player {
     }
     public void setGameId(Integer gameId) {
         this.gameId = gameId;
+    }
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
 }

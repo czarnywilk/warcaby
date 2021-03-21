@@ -64,7 +64,7 @@ public class RoomList extends AppCompatActivity {
                 handler.postDelayed(this, 10000);// 3 sec
             }
         };
-        handler.postDelayed(runnable, 10000);
+        handler.postDelayed(runnable, 0);
         //endregion
 
         createRoom.setOnClickListener(v -> {
@@ -74,8 +74,10 @@ public class RoomList extends AppCompatActivity {
                 Game game = new Game(Name);
 
                 int random = new Random().nextInt(100);
-                if(random > 50)
+                if(random > 50) {
                     game.setWhitePlayerId(GameManager.getUserPlayer().getId());
+                    game.setCurrentPlayerId(GameManager.getUserPlayer().getId());
+                }
                 else
                     game.setBlackPlayerId(GameManager.getUserPlayer().getId());
 
@@ -119,6 +121,7 @@ public class RoomList extends AppCompatActivity {
             Log.d("test", e.getMessage());
         }
     }
+
     public static void removeRefreshCallbacks() {
         handler.removeCallbacks(runnable);
     }
