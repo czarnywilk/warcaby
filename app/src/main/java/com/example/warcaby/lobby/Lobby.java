@@ -5,10 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.warcaby.GameManager;
 import com.example.warcaby.R;
@@ -16,6 +19,7 @@ import com.example.warcaby.multiplayer.serialized.Game;
 import com.example.warcaby.multiplayer.serialized.Player;
 import com.example.warcaby.recyclerview.PlayerAdapter;
 import com.example.warcaby.recyclerview.RoomAdapter;
+import com.example.warcaby.roomlist.RoomList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +27,6 @@ import java.util.List;
 import static com.example.warcaby.GameManager.hasInternetAccess;
 
 public class Lobby extends AppCompatActivity {
-
 
     ArrayList<Player> playersList;
     PlayerAdapter playerAdapter;
@@ -103,5 +106,29 @@ public class Lobby extends AppCompatActivity {
         catch (Exception e) {
             Log.e("test", e.getMessage());
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        //moveTaskToBack(true);
+        View window = findViewById(R.id.quitWindow);
+
+        window.setVisibility(View.VISIBLE);
+        window.setClickable(true);
+
+        Button noBtn = findViewById(R.id.quitNo);
+        noBtn.setOnClickListener(v -> {
+            window.setVisibility(View.INVISIBLE);
+            window.setClickable(false);
+        });
+
+        Button yesBtn = findViewById(R.id.quitYes);
+        yesBtn.setOnClickListener(v -> {
+            window.setVisibility(View.INVISIBLE);
+            window.setClickable(false);
+            GameManager.quitGame(false);
+
+            startActivity(new Intent(getApplicationContext(), RoomList.class));
+        });
     }
 }

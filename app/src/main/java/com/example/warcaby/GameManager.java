@@ -321,4 +321,45 @@ public class GameManager {
             }
         });
     }
+
+    // -------------------- QUIT -------------------------
+    public static void quitGame(boolean deletePlayerOnQuit) {
+        Game game = getUserGame();
+        Integer playerId = getUserPlayer().getId();
+
+        if (game != null) {
+            if (getSecondPlayer() == null) {
+                if (deletePlayerOnQuit) {
+                    deleteGame(game.getId());
+                    deletePlayer(playerId);
+                }
+                else {
+                    deleteGame(game.getId());
+                }
+
+            }
+            else {
+                if (deletePlayerOnQuit)
+                    deletePlayer(playerId);
+
+                // edit game: set null(s) in game
+                if (game.getWhitePlayerId().equals(playerId)) {
+                    game.setWhitePlayerId(null);
+                }
+                else if (game.getBlackPlayerId().equals(playerId)) {
+                    game.setBlackPlayerId(null);
+                }
+
+                if (game.getCurrentPlayerId().equals(playerId)) {
+                    game.setCurrentPlayerId(null);
+                }
+
+                updateGame(game);
+            }
+        }
+        else if (deletePlayerOnQuit) {
+            deletePlayer(playerId);
+        }
+    }
 }
+

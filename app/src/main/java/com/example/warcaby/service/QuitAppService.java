@@ -27,42 +27,13 @@ public class QuitAppService extends Service {
         @Override
         public void onDestroy() { // doesn't guarantee to be invoked (should be onPause / onStop)
 
-            Game game = GameManager.getUserGame();
-            Integer playerId = GameManager.getUserPlayer().getId();
-
-            if (game != null) {
-                if (GameManager.getSecondPlayer() == null) {
-                    GameManager.deleteGame(game.getId()); // deletes both player and game
-                }
-                else {
-                    GameManager.deletePlayer(playerId);
-
-                    // edit game: set null(s) in game
-                    if (game.getWhitePlayerId().equals(playerId)) {
-                        game.setWhitePlayerId(null);
-                    }
-                    else if (game.getBlackPlayerId().equals(playerId)) {
-                        game.setBlackPlayerId(null);
-                    }
-
-                    if (game.getCurrentPlayerId().equals(playerId)) {
-                        game.setCurrentPlayerId(null);
-                    }
-
-                    GameManager.updateGame(game);
-                }
-            }
-            else {
-                GameManager.deletePlayer(playerId);
-            }
+            GameManager.quitGame(true);
 
             super.onDestroy();
         }
 
         @Override
         public void onTaskRemoved(Intent rootIntent) {
-
-
 
             stopSelf();
         }

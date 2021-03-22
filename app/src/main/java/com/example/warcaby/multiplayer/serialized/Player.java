@@ -6,7 +6,7 @@ public class Player {
 
     @SerializedName("playerName")
     private String playerName;
-    @SerializedName("gameId")
+    @SerializedName("parentGame")
     private Integer gameId = null;
     private int id;
 
