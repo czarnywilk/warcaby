@@ -341,6 +341,10 @@ public class GameManager {
             else {
                 if (deletePlayerOnQuit)
                     deletePlayer(playerId);
+                else {
+                    getUserPlayer().setGameId(null);
+                    updatePlayer(getUserPlayer(), false);
+                }
 
                 // edit game: set null(s) in game
                 if (game.getWhitePlayerId().equals(playerId)) {

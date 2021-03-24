@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.warcaby.GameManager;
+import com.example.warcaby.MainActivity;
 import com.example.warcaby.R;
 import com.example.warcaby.multiplayer.PlaceholderUtility;
 import com.example.warcaby.multiplayer.serialized.Player;
@@ -26,10 +27,11 @@ public class MainMenu extends AppCompatActivity {
         PlaceholderUtility.initialize(); // raz na cala aplikacje
         startService(new Intent(getBaseContext(), QuitAppService.class)); // raz na cala aplikacje
 
-        Button enterGame = findViewById(R.id.startGameButton);
+        Button enterOnlineGame = findViewById(R.id.startOnlineGameButton);
+        Button enterLocalGame = findViewById(R.id.startLocalGameButton);
         EditText playerName = findViewById(R.id.playerNameInput);
 
-        enterGame.setOnClickListener(v -> {
+        enterOnlineGame.setOnClickListener(v -> {
             String Name = playerName.getText().toString();
             if(!Name.isEmpty()){
                 if (GameManager.getUserPlayer() == null) {
@@ -39,7 +41,7 @@ public class MainMenu extends AppCompatActivity {
                     GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
                         @Override
                         public void onServerResponse(Object obj) {
-                            enterGame.setText("Change name");
+                            enterOnlineGame.setText("Change name");
                             startActivity(new Intent(MainMenu.this, RoomList.class));
                         }
 
@@ -67,6 +69,13 @@ public class MainMenu extends AppCompatActivity {
                         }
                     });
                 }
+            }
+        });
+
+        enterLocalGame.setOnClickListener(v -> {
+            String Name = playerName.getText().toString();
+            if(!Name.isEmpty()) {
+                startActivity(new Intent(MainMenu.this, MainActivity.class));
             }
         });
     }

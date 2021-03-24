@@ -2,6 +2,8 @@ package com.example.warcaby.lobby;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -12,6 +14,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.warcaby.GameManager;
 import com.example.warcaby.R;
@@ -20,6 +23,8 @@ import com.example.warcaby.multiplayer.serialized.Player;
 import com.example.warcaby.recyclerview.PlayerAdapter;
 import com.example.warcaby.recyclerview.RoomAdapter;
 import com.example.warcaby.roomlist.RoomList;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +35,9 @@ public class Lobby extends AppCompatActivity {
 
     ArrayList<Player> playersList;
     PlayerAdapter playerAdapter;
+    private static Handler handler;
+    private static Runnable runnable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,11 +55,15 @@ public class Lobby extends AppCompatActivity {
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(playerAdapter);
+
+        DividerItemDecoration itemDecorator = new DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
+        itemDecorator.setDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.divider));
+        recyclerView.addItemDecoration(itemDecorator);
         //endregion
 
-        //refresh every x seconds
-        Handler handler =  new Handler();
-        Runnable runnable = new Runnable(){
+        //region refresh
+        handler =  new Handler();
+        runnable = new Runnable(){
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void run() {
@@ -61,9 +73,12 @@ public class Lobby extends AppCompatActivity {
             }
         };
         handler.postDelayed(runnable, 0);
+        //endregion
 
         // REMEMBER TO REMOVE CALLBACKS FROM HANDLER (its running on another thread)
 
+        TextView roomName = findViewById(R.id.roomNameLabel);
+        roomName.setText(GameManager.getUserGame().getGameName());
     }
     void Refresh(){
 
@@ -108,6 +123,10 @@ public class Lobby extends AppCompatActivity {
         }
     }
 
+    public static void removeRefreshCallbacks() {
+        handler.removeCallbacks(runnable);
+    }
+
     @Override
     public void onBackPressed() {
         //moveTaskToBack(true);
@@ -127,7 +146,7 @@ public class Lobby extends AppCompatActivity {
             window.setVisibility(View.INVISIBLE);
             window.setClickable(false);
             GameManager.quitGame(false);
-
+            removeRefreshCallbacks();
             startActivity(new Intent(getApplicationContext(), RoomList.class));
         });
     }

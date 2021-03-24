@@ -2,6 +2,8 @@ package com.example.warcaby.roomlist;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,6 +53,10 @@ public class RoomList extends AppCompatActivity {
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(roomAdapter);
+
+        DividerItemDecoration itemDecorator = new DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
+        itemDecorator.setDrawable(ContextCompat.getDrawable(getBaseContext(), R.drawable.divider));
+        recyclerView.addItemDecoration(itemDecorator);
         //endregion
 
         //region refresh every x seconds
@@ -98,6 +104,7 @@ public class RoomList extends AppCompatActivity {
             }
         });
     }
+
     private void Refresh(){
         try {
             roomList.clear();
@@ -124,5 +131,10 @@ public class RoomList extends AppCompatActivity {
 
     public static void removeRefreshCallbacks() {
         handler.removeCallbacks(runnable);
+    }
+
+    @Override
+    public void onBackPressed() {
+        //TODO dont do anything
     }
 }

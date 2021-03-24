@@ -2,13 +2,15 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:outlineProvider="none"
+    android:background="@color/mainBackgroundColor">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/cardview_dark_background"
+        android:background="@drawable/recycler_view_element"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp">
 
@@ -18,7 +20,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="gameName"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/mainTextColorDark"
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -28,10 +30,10 @@
             android:id="@+id/playersCountText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="left"
+            android:gravity="start"
             android:layout_margin="10dp"
             android:text="Players: 1/2"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/mainTextColorDark"
 
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -43,8 +45,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="Join Game"
-            android:textColor="#FFFFFF"
-            android:background="#959595"
+            android:textColor="@color/mainTextColorDark"
+            android:background="@drawable/rounded_button"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

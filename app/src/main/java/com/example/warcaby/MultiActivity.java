@@ -1,47 +1,43 @@
 package com.example.warcaby;
 
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.renderscript.Allocation;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.lang.Object.*;
+import java.util.concurrent.TimeUnit;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.internal.NavigationMenu;
+import com.google.android.material.internal.NavigationMenuItemView;
 import com.google.android.material.navigation.NavigationView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.TypedArrayUtils;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity {
+public class MultiActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     public Button buttons[] = new Button[32];
     static MyField tablica[] = new MyField[32];
-    int nrGracza = 1;
+    public static String cleanBoard = "11111111000000000000000022222222";
+    int aktualnyGracz;
+    int kluczGracza;
     boolean select = false;
     boolean hit = false;
     MyField selectField = new MyField();
     MyField targetField = new MyField();
 
-    NavigationView menu; //TODO dodajcie to u siebie
+    NavigationView menu = findViewById(R.id.drawer_layout); //TODO dodajcie to u siebie
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -51,23 +47,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        menu = findViewById(R.id.nav_view); //TODO ten wiersz też dodajcie
+        menu.setNavigationItemSelectedListener(item -> {
+            if (item.getTitle().equals("Menu Główne")){
+                //TODO przejscie do menu głównego
+            }
+            else if (item.getTitle().equals("Wybór gry")){
+                //Todo powrót do wyboru gry
+            }
+            return true;
+        }); //TODO to również dodajcie (od menu.setNavigation...)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-
-        menu.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if (item.getTitle().equals("Menu Główne")){
-                    //TODO przejscie do menu głównego
-                }
-                else if (item.getTitle().equals("Wybór gry")){
-                    //Todo powrót do wyboru gry
-                }
-                return true;
-            }
-        }); //TODO to również dodajcie (od menu.setNavigation...) - to już ostatnie, słowo harcerza :)
-
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
                 .setDrawerLayout(drawer)
@@ -113,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
         buttons[29] = findViewById(R.id.button18);
         buttons[30] = findViewById(R.id.button19);
         buttons[31] = findViewById(R.id.button20);
+
+        drawer = findViewById(R.id.drawer_layout);
+
         wyswietlPlansze();
     }
 
@@ -122,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         //select = false;
         //hit = false;
         for (int i = 0; i < 32; i++){
-            if (nrGracza == 1){
+            if (aktualnyGracz == 1){
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (tablica[i].getPawn() == 1) {
                         buttons[i].setForeground(ContextCompat.getDrawable(this, R.drawable.pawn_white_foreground));
@@ -130,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else if (tablica[i].getPawn() == 2) {
                         buttons[i].setForeground(ContextCompat.getDrawable(this, R.drawable.pawn_black_foreground));
-                        //buttons[i].setBackgroundColor(Color.parseColor("#03A9F4"));
+                        buttons[i].setBackgroundColor(ContextCompat.getColor(this, R.color.boardFieldColor));
                     }
                     else if (tablica[i].getPawn() == 0) {
                         buttons[i].setForeground(null);
@@ -184,223 +177,256 @@ public class MainActivity extends AppCompatActivity {
     //metoda obsługująca wciśnięcie przycisku
     public void buttonClicked(View view){
 
-        int index = -1;
+        if (aktualnyGracz == kluczGracza){
+            int index = -1;
 
-        if (nrGracza == 1){
-            for (int i=0; i<32; i++){
-                if (buttons[i] == view){
-                    index = i;
-                    break;
-                }
-            }
-            System.out.println("x = " + tablica[index].getX() + " a y = " + tablica[index].getY() + " a pionek = " + tablica[index].getPawn());
-            if ((tablica[index].getPawn() == nrGracza || tablica[index].getPawn() == nrGracza+2) && !hit){
-                if (((pawnCanMove(tablica[index]) || pawnCanHit(tablica[index])) && tablica[index].getPawn()==nrGracza) || (tablica[index].getPawn() == nrGracza+2 && (queenCanHit(tablica[index]) || queenCanMove(tablica[index])))){
-                    wyswietlPlansze();
-                    select = true;
-                    selectField = tablica[index];
-                    lightPath(selectField);
-                }
-            }
-            else if (select){
-                targetField = tablica[index];
-                if (targetField == selectField && hit){
-                    select = false;
-                    hit = false;
-                    System.out.println("Zakończono mimo możliwości kolejnego bicia!");
-                    endTurn();
-                }
-                if (checkFieldPawn(selectField, targetField) && selectField.getPawn() == nrGracza){
-                    if (playerCanAttack()){
-                        Toast.makeText(this,"Możliwe bicie!", Toast.LENGTH_SHORT).show();
-                    }
-                    else{
-                        targetField.setPawn(nrGracza);
-                        selectField.setPawn(0);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            select = false;
-                            hit = false;
-                            if (targetField.getY()==8) targetField.setPawn(nrGracza + 2);
-                            System.out.println("Wykonano ruch!");
-                            endTurn();
-                        }
+            if (aktualnyGracz == 1){
+                for (int i=0; i<32; i++){
+                    if (buttons[i] == view){
+                        index = i;
+                        break;
                     }
                 }
-                else if (checkHitPawn(selectField,targetField) && selectField.getPawn() == nrGracza){
-                    destroyPawn(selectField,targetField);
-                    targetField.setPawn(nrGracza);
-                    selectField.setPawn(0);
-                    hit = true;
-                    if (targetField.getY()==8) targetField.setPawn(nrGracza + 2);
-                    if (!pawnCanHit(targetField) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        select = false;
-                        hit = false;
-                        System.out.println("Kolejne bicie niemożliwe, koniec tury!");
-                        endTurn();
-                    }
-                    else{
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            wyswietlPlansze();
-                        }
-                        System.out.println("Możliwe kolejne bicie!");
-                        selectField = targetField;
+                System.out.println("x = " + tablica[index].getX() + " a y = " + tablica[index].getY() + " a pionek = " + tablica[index].getPawn());
+                if ((tablica[index].getPawn() == aktualnyGracz || tablica[index].getPawn() == aktualnyGracz +2) && !hit){
+                    if (((pawnCanMove(tablica[index]) || pawnCanHit(tablica[index])) && tablica[index].getPawn()== aktualnyGracz) || (tablica[index].getPawn() == aktualnyGracz +2 && (queenCanHit(tablica[index]) || queenCanMove(tablica[index])))){
+                        wyswietlPlansze();
+                        select = true;
+                        selectField = tablica[index];
                         lightPath(selectField);
                     }
                 }
-                //KRÓLÓWKI!!!
-                else if (checkFieldQueen(selectField, targetField) && selectField.getPawn() == nrGracza+2){
-                    if (playerCanAttack()){
-                        Toast.makeText(this,"Możliwe bicie!", Toast.LENGTH_SHORT).show();
+                else if (select){
+                    targetField = tablica[index];
+                    if (targetField == selectField && hit){
+                        select = false;
+                        hit = false;
+                        System.out.println("Zakończono mimo możliwości kolejnego bicia!");
+                        endTurn();
                     }
-                    else{
-                        targetField.setPawn(nrGracza+2);
+                    if (checkFieldPawn(selectField, targetField) && selectField.getPawn() == aktualnyGracz){
+                        if (playerCanAttack()){
+                            Toast.makeText(this,"Możliwe bicie!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            targetField.setPawn(aktualnyGracz);
+                            selectField.setPawn(0);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                select = false;
+                                hit = false;
+                                if (targetField.getY()==8) targetField.setPawn(aktualnyGracz + 2);
+                                System.out.println("Wykonano ruch!");
+                                endTurn();
+                            }
+                        }
+                    }
+                    else if (checkHitPawn(selectField,targetField) && selectField.getPawn() == aktualnyGracz){
+                        destroyPawn(selectField,targetField);
+                        targetField.setPawn(aktualnyGracz);
                         selectField.setPawn(0);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        hit = true;
+                        if (targetField.getY()==8) targetField.setPawn(aktualnyGracz + 2);
+                        if (!pawnCanHit(targetField) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             select = false;
                             hit = false;
-                            System.out.println("Wykonano ruch!");
+                            System.out.println("Kolejne bicie niemożliwe, koniec tury!");
                             endTurn();
+                        }
+                        else{
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                wyswietlPlansze();
+                            }
+                            System.out.println("Możliwe kolejne bicie!");
+                            selectField = targetField;
+                            lightPath(selectField);
+                        }
+                    }
+                    //KRÓLÓWKI!!!
+                    else if (checkFieldQueen(selectField, targetField) && selectField.getPawn() == aktualnyGracz +2){
+                        if (playerCanAttack()){
+                            Toast.makeText(this,"Możliwe bicie!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            targetField.setPawn(aktualnyGracz +2);
+                            selectField.setPawn(0);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                select = false;
+                                hit = false;
+                                System.out.println("Wykonano ruch!");
+                                endTurn();
+                            }
+                        }
+                    }
+                    else if (checkHitQueen(selectField,targetField) && selectField.getPawn() == aktualnyGracz +2){
+                        destroyPawn(selectField,targetField);
+                        targetField.setPawn(aktualnyGracz +2);
+                        selectField.setPawn(0);
+                        hit = true;
+                        if (!queenCanHit(targetField) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            select = false;
+                            hit = false;
+                            System.out.println("Kolejne bicie niemożliwe, koniec tury!");
+                            endTurn();
+                        }
+                        else{
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                wyswietlPlansze();
+                            }
+                            System.out.println("Możliwe kolejne bicie!");
+                            selectField = targetField;
+                            lightPath(selectField);
                         }
                     }
                 }
-                else if (checkHitQueen(selectField,targetField) && selectField.getPawn() == nrGracza+2){
-                    destroyPawn(selectField,targetField);
-                    targetField.setPawn(nrGracza+2);
-                    selectField.setPawn(0);
-                    hit = true;
-                    if (!queenCanHit(targetField) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            }
+
+            else{
+                for (int i=0; i<32; i++){
+                    if (buttons[i] == view){
+                        index = 31-i;
+                        break;
+                    }
+                }
+                System.out.println("x = " + tablica[index].getX() + " a y = " + tablica[index].getY() + " a pionek = " + tablica[index].getPawn());
+
+                if ((tablica[index].getPawn() == aktualnyGracz || tablica[index].getPawn() == aktualnyGracz +2) && !hit){
+                    if (((pawnCanMove(tablica[index]) || pawnCanHit(tablica[index])) && tablica[index].getPawn()== aktualnyGracz) || (tablica[index].getPawn() == aktualnyGracz +2 && (queenCanHit(tablica[index]) || queenCanMove(tablica[index])))){
+                        wyswietlPlansze();
+                        select = true;
+                        selectField = tablica[index];
+                        lightPath(selectField);
+                    }
+                }
+                else if (select){
+                    targetField = tablica[index];
+                    if (targetField == selectField && hit) {
                         select = false;
                         hit = false;
-                        System.out.println("Kolejne bicie niemożliwe, koniec tury!");
                         endTurn();
                     }
-                    else{
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            wyswietlPlansze();
+                    if (checkFieldPawn(selectField, targetField) && selectField.getPawn() == aktualnyGracz){
+                        if (playerCanAttack()){
+                            Toast.makeText(this,"Możliwe bicie!", Toast.LENGTH_SHORT).show();
                         }
-                        System.out.println("Możliwe kolejne bicie!");
-                        selectField = targetField;
-                        lightPath(selectField);
+                        else{
+                            targetField.setPawn(aktualnyGracz);
+                            selectField.setPawn(0);
+                            if (targetField.getY()==8) targetField.setPawn(aktualnyGracz + 2);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                endTurn();
+                            }
+                        }
+                    }
+                    else if (checkHitPawn(selectField,targetField) && selectField.getPawn() == aktualnyGracz){
+                        destroyPawn(selectField,targetField);
+                        targetField.setPawn(aktualnyGracz);
+                        selectField.setPawn(0);
+                        hit = true;
+                        if (targetField.getY()==8) targetField.setPawn(aktualnyGracz + 2);
+                        if (!pawnCanHit(targetField) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            select = false;
+                            hit = false;
+                            endTurn();
+                        }
+                        else {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                wyswietlPlansze();
+                            }
+                            selectField = targetField;
+                            lightPath(selectField);
+                        }
+                    }
+                    //KRÓLÓWKI!!!
+                    else if (checkFieldQueen(selectField, targetField) && selectField.getPawn() == aktualnyGracz +2){
+                        if (playerCanAttack()){
+                            Toast.makeText(this,"Możliwe bicie!", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            targetField.setPawn(aktualnyGracz +2);
+                            selectField.setPawn(0);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                select = false;
+                                hit = false;
+                                System.out.println("Wykonano ruch!");
+                                endTurn();
+                            }
+                        }
+                    }
+                    else if (checkHitQueen(selectField,targetField) && selectField.getPawn() == aktualnyGracz +2){
+                        destroyPawn(selectField,targetField);
+                        targetField.setPawn(aktualnyGracz +2);
+                        selectField.setPawn(0);
+                        hit = true;
+                        if (!queenCanHit(targetField) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            select = false;
+                            hit = false;
+                            System.out.println("Kolejne bicie niemożliwe, koniec tury!");
+                            endTurn();
+                        }
+                        else{
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                wyswietlPlansze();
+                            }
+                            System.out.println("Możliwe kolejne bicie!");
+                            selectField = targetField;
+                            lightPath(selectField);
+                        }
                     }
                 }
             }
         }
-
-        else{
-            for (int i=0; i<32; i++){
-                if (buttons[i] == view){
-                    index = 31-i;
-                    break;
-                }
-            }
-            System.out.println("x = " + tablica[index].getX() + " a y = " + tablica[index].getY() + " a pionek = " + tablica[index].getPawn());
-
-            if ((tablica[index].getPawn() == nrGracza || tablica[index].getPawn() == nrGracza+2) && !hit){
-                if (((pawnCanMove(tablica[index]) || pawnCanHit(tablica[index])) && tablica[index].getPawn()==nrGracza) || (tablica[index].getPawn() == nrGracza+2 && (queenCanHit(tablica[index]) || queenCanMove(tablica[index])))){
-                    wyswietlPlansze();
-                    select = true;
-                    selectField = tablica[index];
-                    lightPath(selectField);
-                }
-            }
-            else if (select){
-                targetField = tablica[index];
-                if (targetField == selectField && hit) {
-                    select = false;
-                    hit = false;
-                    endTurn();
-                }
-                if (checkFieldPawn(selectField, targetField) && selectField.getPawn() == nrGracza){
-                    if (playerCanAttack()){
-                        Toast.makeText(this,"Możliwe bicie!", Toast.LENGTH_SHORT).show();
-                    }
-                    else{
-                        targetField.setPawn(nrGracza);
-                        selectField.setPawn(0);
-                        if (targetField.getY()==8) targetField.setPawn(nrGracza + 2);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            endTurn();
-                        }
-                    }
-                }
-                else if (checkHitPawn(selectField,targetField) && selectField.getPawn() == nrGracza){
-                    destroyPawn(selectField,targetField);
-                    targetField.setPawn(nrGracza);
-                    selectField.setPawn(0);
-                    hit = true;
-                    if (targetField.getY()==8) targetField.setPawn(nrGracza + 2);
-                    if (!pawnCanHit(targetField) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        select = false;
-                        hit = false;
-                        endTurn();
-                    }
-                    else {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            wyswietlPlansze();
-                        }
-                        selectField = targetField;
-                        lightPath(selectField);
-                    }
-                }
-                //KRÓLÓWKI!!!
-                else if (checkFieldQueen(selectField, targetField) && selectField.getPawn() == nrGracza+2){
-                    if (playerCanAttack()){
-                        Toast.makeText(this,"Możliwe bicie!", Toast.LENGTH_SHORT).show();
-                    }
-                    else{
-                        targetField.setPawn(nrGracza+2);
-                        selectField.setPawn(0);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            select = false;
-                            hit = false;
-                            System.out.println("Wykonano ruch!");
-                            endTurn();
-                        }
-                    }
-                }
-                else if (checkHitQueen(selectField,targetField) && selectField.getPawn() == nrGracza+2){
-                    destroyPawn(selectField,targetField);
-                    targetField.setPawn(nrGracza+2);
-                    selectField.setPawn(0);
-                    hit = true;
-                    if (!queenCanHit(targetField) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        select = false;
-                        hit = false;
-                        System.out.println("Kolejne bicie niemożliwe, koniec tury!");
-                        endTurn();
-                    }
-                    else{
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            wyswietlPlansze();
-                        }
-                        System.out.println("Możliwe kolejne bicie!");
-                        selectField = targetField;
-                        lightPath(selectField);
-                    }
-                }
-            }
-        }
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void endTurn(){
-        if (nrGracza == 1) nrGracza=2;
-        else nrGracza = 1;
+        if (aktualnyGracz == 1) aktualnyGracz = 2;
+        else aktualnyGracz = 1;
+        sendData();
         if (!canPlayerPlay()){
-            Toast.makeText(this, "Gracz nr " + nrGracza + " przegrał!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Gracz nr " + kluczGracza + " wygrał!",Toast.LENGTH_SHORT).show();
+            //TODO w tym miejscu gracz wygrywa - możecie dodać, co tam Wam pasuje
+        }
+        waitForTurn();
+    }
+
+    public void startTurn(){
+        if (!canPlayerPlay()){
+            Toast.makeText(this, "Gracz nr " + kluczGracza + " przegrał!",Toast.LENGTH_SHORT).show();
+            //TODO w tym miejscu gracz przegrywa - możecie dodać, co tam Wam pasuje
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             wyswietlPlansze();
         }
     }
 
+    public void updateData(){
+        //TODO pobieranie danych z serwera
+    }
+
+    public void sendData(){
+        //TODO wysyłanie danych na serwer
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void waitForTurn(){
+        try {
+            TimeUnit.SECONDS.sleep((long) 2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        updateData();
+        if (kluczGracza == aktualnyGracz) if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startTurn();
+        }
+        else waitForTurn();
+    }
+
     public boolean canPlayerPlay(){
         for (int i=0; i<32; i++){
-            if (tablica[i].getPawn()==nrGracza){
+            if (tablica[i].getPawn()== aktualnyGracz){
                 if (pawnCanMove(tablica[i]) || pawnCanHit(tablica[i])) return true;
             }
-            if (tablica[i].getPawn()==nrGracza+2){
+            if (tablica[i].getPawn()== aktualnyGracz +2){
                 if (queenCanMove(tablica[i]) || queenCanHit(tablica[i])) return true;
             }
         }
@@ -412,15 +438,15 @@ public class MainActivity extends AppCompatActivity {
         int x = pole.getX();
         int y = pole.getY();
         buttons[index].setBackgroundColor(Color.parseColor("#00DC29"));
-        if (pole.getPawn()==nrGracza){
+        if (pole.getPawn()== aktualnyGracz){
             if(pawnCanHit(pole)){
                 if (x>1){
-                    if (getFieldFromAxis(x-1, y+1).getPawn()!=nrGracza && getFieldFromAxis(x-1, y+1).getPawn()!=nrGracza+2 && getFieldFromAxis(x-1,y+1).getPawn()!=0){
+                    if (getFieldFromAxis(x-1, y+1).getPawn()!= aktualnyGracz && getFieldFromAxis(x-1, y+1).getPawn()!= aktualnyGracz +2 && getFieldFromAxis(x-1,y+1).getPawn()!=0){
                         if (getFieldFromAxis(x-2,y+2).getPawn()==0) buttons[getIndex(getFieldFromAxis(x-2,y+2))].setBackgroundColor(Color.parseColor("#DC0005"));
                     }
                 }
                 if (x<8){
-                    if (getFieldFromAxis(x+1, y+1).getPawn()!=nrGracza && getFieldFromAxis(x+1, y+1).getPawn()!=nrGracza+2 && getFieldFromAxis(x+1,y+1).getPawn()!=0){
+                    if (getFieldFromAxis(x+1, y+1).getPawn()!= aktualnyGracz && getFieldFromAxis(x+1, y+1).getPawn()!= aktualnyGracz +2 && getFieldFromAxis(x+1,y+1).getPawn()!=0){
                         if (getFieldFromAxis(x+2,y+2).getPawn()==0) buttons[getIndex(getFieldFromAxis(x+2,y+2))].setBackgroundColor(Color.parseColor("#DC0005"));
                     }
                 }
@@ -438,7 +464,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        else if (pole.getPawn()==nrGracza+2){
+        else if (pole.getPawn()== aktualnyGracz +2){
             if (queenCanHit(pole)){
                 int iloscPionkowPodRzad = 0;
                 MyField poleTestowe = new MyField();
@@ -450,7 +476,7 @@ public class MainActivity extends AppCompatActivity {
                         x1--;
                         y1++;
                         if (getFieldFromAxis(x1,y1).getPawn()!=0){
-                            if (getFieldFromAxis(x1,y1).getPawn()==nrGracza || getFieldFromAxis(x1,y1).getPawn()==nrGracza+2) break;
+                            if (getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz || getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz +2) break;
                             else{
                                 iloscPionkowPodRzad++;
                                 if (iloscPionkowPodRzad>1) break;
@@ -473,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
                         x1--;
                         y1--;
                         if (getFieldFromAxis(x1,y1).getPawn()!=0){
-                            if (getFieldFromAxis(x1,y1).getPawn()==nrGracza || getFieldFromAxis(x1,y1).getPawn()==nrGracza+2) break;
+                            if (getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz || getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz +2) break;
                             else{
                                 iloscPionkowPodRzad++;
                                 if (iloscPionkowPodRzad>1) break;
@@ -496,7 +522,7 @@ public class MainActivity extends AppCompatActivity {
                         x1++;
                         y1++;
                         if (getFieldFromAxis(x1,y1).getPawn()!=0){
-                            if (getFieldFromAxis(x1,y1).getPawn()==nrGracza || getFieldFromAxis(x1,y1).getPawn()==nrGracza+2) break;
+                            if (getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz || getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz +2) break;
                             else{
                                 iloscPionkowPodRzad++;
                                 if (iloscPionkowPodRzad>1) break;
@@ -519,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
                         x1++;
                         y1--;
                         if (getFieldFromAxis(x1,y1).getPawn()!=0){
-                            if (getFieldFromAxis(x1,y1).getPawn()==nrGracza || getFieldFromAxis(x1,y1).getPawn()==nrGracza+2) break;
+                            if (getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz || getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz +2) break;
                             else{
                                 iloscPionkowPodRzad++;
                                 if (iloscPionkowPodRzad>1) break;
@@ -585,7 +611,7 @@ public class MainActivity extends AppCompatActivity {
 
     public int getIndex(MyField pole){
         for (int i = 0; i<32; i++){
-            if (tablica[i] == pole) return (nrGracza==1 ? i : 31-i);
+            if (tablica[i] == pole) return (aktualnyGracz ==1 ? i : 31-i);
         }
         return 32;
     }
@@ -621,7 +647,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (x>2 && y<7){
             polePoLewej = getFieldFromAxis(x-1,y+1);
-            if (polePoLewej.getPawn()!=nrGracza && polePoLewej.getPawn()!=nrGracza+2 && polePoLewej.getPawn()!=0){
+            if (polePoLewej.getPawn()!= aktualnyGracz && polePoLewej.getPawn()!= aktualnyGracz +2 && polePoLewej.getPawn()!=0){
                 int x1 = polePoLewej.getX();
                 int y1 = polePoLewej.getY();
                 polePoLewej = getFieldFromAxis(x1-1, y1+1);
@@ -631,7 +657,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (x<7 && y<7){
             polePoPrawej = getFieldFromAxis(x+1,y+1);
-            if (polePoPrawej.getPawn()!=nrGracza && polePoPrawej.getPawn()!=nrGracza+2 && polePoPrawej.getPawn()!=0){
+            if (polePoPrawej.getPawn()!= aktualnyGracz && polePoPrawej.getPawn()!= aktualnyGracz +2 && polePoPrawej.getPawn()!=0){
                 int x1 = polePoPrawej.getX();
                 int y1 = polePoPrawej.getY();
                 polePoPrawej = getFieldFromAxis(x1+1, y1+1);
@@ -678,7 +704,7 @@ public class MainActivity extends AppCompatActivity {
                 x1--;
                 y1++;
                 if (getFieldFromAxis(x1,y1).getPawn()!=0){
-                    if (getFieldFromAxis(x1,y1).getPawn()==nrGracza || getFieldFromAxis(x1,y1).getPawn()==nrGracza+2) break;
+                    if (getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz || getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz +2) break;
                     else{
                         iloscPionkowPodRzad++;
                         if (iloscPionkowPodRzad>1) break;
@@ -698,7 +724,7 @@ public class MainActivity extends AppCompatActivity {
                 x1--;
                 y1--;
                 if (getFieldFromAxis(x1,y1).getPawn()!=0){
-                    if (getFieldFromAxis(x1,y1).getPawn()==nrGracza || getFieldFromAxis(x1,y1).getPawn()==nrGracza+2) break;
+                    if (getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz || getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz +2) break;
                     else{
                         iloscPionkowPodRzad++;
                         if (iloscPionkowPodRzad>1) break;
@@ -718,7 +744,7 @@ public class MainActivity extends AppCompatActivity {
                 x1++;
                 y1++;
                 if (getFieldFromAxis(x1,y1).getPawn()!=0){
-                    if (getFieldFromAxis(x1,y1).getPawn()==nrGracza || getFieldFromAxis(x1,y1).getPawn()==nrGracza+2) break;
+                    if (getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz || getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz +2) break;
                     else{
                         iloscPionkowPodRzad++;
                         if (iloscPionkowPodRzad>1) break;
@@ -738,7 +764,7 @@ public class MainActivity extends AppCompatActivity {
                 x1++;
                 y1--;
                 if (getFieldFromAxis(x1,y1).getPawn()!=0){
-                    if (getFieldFromAxis(x1,y1).getPawn()==nrGracza || getFieldFromAxis(x1,y1).getPawn()==nrGracza+2) break;
+                    if (getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz || getFieldFromAxis(x1,y1).getPawn()== aktualnyGracz +2) break;
                     else{
                         iloscPionkowPodRzad++;
                         if (iloscPionkowPodRzad>1) break;
@@ -799,7 +825,7 @@ public class MainActivity extends AppCompatActivity {
                 startX += diffX;
                 startY += diffY;
                 if (getFieldFromAxis(startX, startY).getPawn()!=0){
-                    if (getFieldFromAxis(startX, startY).getPawn()!=nrGracza && getFieldFromAxis(startX, startY).getPawn()!=nrGracza+2){
+                    if (getFieldFromAxis(startX, startY).getPawn()!= aktualnyGracz && getFieldFromAxis(startX, startY).getPawn()!= aktualnyGracz +2){
                         iloscPionkowPodRzad++;
                         if (iloscPionkowPodRzad>1) return false;
                     }
@@ -820,12 +846,12 @@ public class MainActivity extends AppCompatActivity {
         if (startX-2 == endX && startY+2 == endY){
             MyField temp = new MyField();
             temp = getFieldFromAxis(startX-1, startY+1);
-            if (temp.getPawn() != nrGracza && temp.getPawn() != nrGracza+2 && temp.getPawn() != 0) return true;
+            if (temp.getPawn() != aktualnyGracz && temp.getPawn() != aktualnyGracz +2 && temp.getPawn() != 0) return true;
         }
         if (startX+2 == endX && startY+2 == endY){
             MyField temp = new MyField();
             temp = getFieldFromAxis(startX+1, startY+1);
-            if (temp.getPawn() != nrGracza && temp.getPawn() != nrGracza+2 && temp.getPawn() != 0) return true;
+            if (temp.getPawn() != aktualnyGracz && temp.getPawn() != aktualnyGracz +2 && temp.getPawn() != 0) return true;
         }
         return false;
     }
@@ -848,7 +874,7 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean playerCanAttack(){
         for (int i=0; i<32; i++){
-            if ((tablica[i].getPawn() == nrGracza && pawnCanHit(tablica[i])) || (tablica[i].getPawn() == nrGracza +2 && queenCanHit(tablica[i]))) return true;
+            if ((tablica[i].getPawn() == aktualnyGracz && pawnCanHit(tablica[i])) || (tablica[i].getPawn() == aktualnyGracz +2 && queenCanHit(tablica[i]))) return true;
         }
         return false;
     }
@@ -857,7 +883,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 32; i++){
             tablica[i].setPawn(Character.getNumericValue(input.charAt(i)));
         }
-    }
+    } //TODO Metoda do przerabiania Stringa na planszę
 
     public static String tableToString(){
         String result = "";
@@ -865,7 +891,7 @@ public class MainActivity extends AppCompatActivity {
             result += Integer.toString(tablica[i].pawn);
         }
         return result;
-    }
+    } //TODO Metoda do przerabiania planszy na Stringa
 
     class MyField{
         protected int x,y,pawn;
@@ -891,12 +917,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public int getX(){
-            if (nrGracza == 1) return this.x;
+            if (aktualnyGracz == 1) return this.x;
             else return 9-this.x;
         }
 
         public int getY(){
-            if (nrGracza == 1) return this.y;
+            if (aktualnyGracz == 1) return this.y;
             else return 9-this.y;
         }
     }

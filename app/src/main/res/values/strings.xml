@@ -10,4 +10,18 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+
+    <string name="room_list_label">Room List</string>
+
+    <string name="play_local">Play Local</string>
+    <string name="play_online">Play Online</string>
+    <string name="enter_player_name_hint">Enter player name…</string>
+    <string name="enter_room_name_hint">Enter room name…</string>
+    <string name="create_room">Create Room</string>
+    <string name="start_game">Start Game</string>
+
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+
+    <string name="quit_question">Are you sure you want to leave?</string>
 </resources>

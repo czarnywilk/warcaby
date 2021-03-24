@@ -14,7 +14,7 @@ public interface JsonPlaceholderAPI {
     @GET("games")
     Call<List<Game>> getListOfRooms();
     @GET("players")
-    Call<List<Player>> getPlayersFromGame(@Query("gameId") Integer gameId);
+    Call<List<Player>> getPlayersFromGame(@Query("parentGame") Integer gameId);
 
 
     @POST("games")

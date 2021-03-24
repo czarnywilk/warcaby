@@ -1,9 +1,7 @@
 package com.example.warcaby.multiplayer.serialized;
 
-import com.example.warcaby.MainActivity;
+import com.example.warcaby.MultiActivity;
 import com.google.gson.annotations.SerializedName;
-
-import java.util.Random;
 
 public class Game {
 
@@ -21,7 +19,7 @@ public class Game {
 
 
     public Game(String gameName) {
-        board = MainActivity.cleanBoard;
+        board = MultiActivity.cleanBoard;
         this.gameName = gameName;
     }
 
