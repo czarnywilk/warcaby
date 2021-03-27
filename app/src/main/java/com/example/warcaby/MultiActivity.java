@@ -3,6 +3,7 @@ package com.example.warcaby;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
+import com.example.warcaby.multiplayer.serialized.Game;
 import com.google.android.material.internal.NavigationMenu;
 import com.google.android.material.internal.NavigationMenuItemView;
 import com.google.android.material.navigation.NavigationView;
@@ -27,8 +29,8 @@ import androidx.appcompat.widget.Toolbar;
 public class MultiActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    public Button buttons[] = new Button[32];
-    static MyField tablica[] = new MyField[32];
+    public Button[] buttons = new Button[32];
+    static MyField[] tablica = new MyField[32];
     public static String cleanBoard = "11111111000000000000000022222222";
     int aktualnyGracz;
     int kluczGracza;
@@ -39,74 +41,100 @@ public class MultiActivity extends AppCompatActivity {
 
     NavigationView menu = findViewById(R.id.drawer_layout); //TODO dodajcie to u siebie
 
+    //------------------------------------------------
+
+    private static Handler handler;
+    private static Runnable runnable;
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        menu.setNavigationItemSelectedListener(item -> {
-            if (item.getTitle().equals("Menu Główne")){
-                //TODO przejscie do menu głównego
-            }
-            else if (item.getTitle().equals("Wybór gry")){
-                //Todo powrót do wyboru gry
-            }
-            return true;
-        }); //TODO to również dodajcie (od menu.setNavigation...)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
-                .setDrawerLayout(drawer)
-                .build();
+        //setSupportActionBar(toolbar);
+        try {
+            DrawerLayout drawer = findViewById(R.id.drawer_layout);
+            menu.setNavigationItemSelectedListener(item -> {
+                if (item.getTitle().equals("Menu Główne")) {
+                    //TODO przejscie do menu głównego
+                } else if (item.getTitle().equals("Wybór gry")) {
+                    //Todo powrót do wyboru gry
+                }
+                return true;
+            }); //TODO to również dodajcie (od menu.setNavigation...)
+            // Passing each menu ID as a set of Ids because each
+            // menu should be considered as top level destinations.
+            mAppBarConfiguration = new AppBarConfiguration.Builder(
+                    R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                    .setDrawerLayout(drawer)
+                    .build();
 
-        for (int i = 0; i < 8; i++){
-            for (int j = 0; j < 4; j++){
-                tablica[i*4 + j] = new MyField(j*2+((i%2))+1, i+1, 0);
-                //else tablica[i*4 + j] = new MyField(j*2+((i%2)), i+1, 0);
-                if (i<2) tablica[i*4 + j].setPawn(1);
-                else if (i>5) tablica[i*4 + j].setPawn(2);
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 4; j++) {
+                    tablica[i * 4 + j] = new MyField(j * 2 + ((i % 2)) + 1, i + 1, 0);
+                    //else tablica[i*4 + j] = new MyField(j*2+((i%2)), i+1, 0);
+                    if (i < 2) tablica[i * 4 + j].setPawn(1);
+                    else if (i > 5) tablica[i * 4 + j].setPawn(2);
+                }
             }
+            //region find buttons by id
+            buttons[0] = findViewById(R.id.button41);
+            buttons[1] = findViewById(R.id.button42);
+            buttons[2] = findViewById(R.id.button43);
+            buttons[3] = findViewById(R.id.button44);
+            buttons[4] = findViewById(R.id.but1);
+            buttons[5] = findViewById(R.id.but2);
+            buttons[6] = findViewById(R.id.but3);
+            buttons[7] = findViewById(R.id.but4);
+            buttons[8] = findViewById(R.id.button37);
+            buttons[9] = findViewById(R.id.button39);
+            buttons[10] = findViewById(R.id.button40);
+            buttons[11] = findViewById(R.id.button38);
+            buttons[12] = findViewById(R.id.button33);
+            buttons[13] = findViewById(R.id.button34);
+            buttons[14] = findViewById(R.id.button35);
+            buttons[15] = findViewById(R.id.button36);
+            buttons[16] = findViewById(R.id.button29);
+            buttons[17] = findViewById(R.id.button30);
+            buttons[18] = findViewById(R.id.button31);
+            buttons[19] = findViewById(R.id.button32);
+            buttons[20] = findViewById(R.id.button25);
+            buttons[21] = findViewById(R.id.button26);
+            buttons[22] = findViewById(R.id.button27);
+            buttons[23] = findViewById(R.id.button28);
+            buttons[24] = findViewById(R.id.button21);
+            buttons[25] = findViewById(R.id.button24);
+            buttons[26] = findViewById(R.id.button23);
+            buttons[27] = findViewById(R.id.button22);
+            buttons[28] = findViewById(R.id.button17);
+            buttons[29] = findViewById(R.id.button18);
+            buttons[30] = findViewById(R.id.button19);
+            buttons[31] = findViewById(R.id.button20);
+            //endregion
+
+            drawer = findViewById(R.id.drawer_layout);
+
+            wyswietlPlansze();
+
+            kluczGracza = GameManager.getUserPlayer().getId();
+            //region set wait for turn
+            handler = new Handler();
+            runnable = new Runnable() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                @Override
+                public void run() {
+                    if (GameManager.hasInternetAccess())
+                        getData();
+                    handler.postDelayed(this, 5000);// 5 sec
+                }
+            };
+            //endregion
         }
-        buttons[0] = findViewById(R.id.button41);
-        buttons[1] = findViewById(R.id.button42);
-        buttons[2] = findViewById(R.id.button43);
-        buttons[3] = findViewById(R.id.button44);
-        buttons[4] = findViewById(R.id.but1);
-        buttons[5] = findViewById(R.id.but2);
-        buttons[6] = findViewById(R.id.but3);
-        buttons[7] = findViewById(R.id.but4);
-        buttons[8] = findViewById(R.id.button37);
-        buttons[9] = findViewById(R.id.button39);
-        buttons[10] = findViewById(R.id.button40);
-        buttons[11] = findViewById(R.id.button38);
-        buttons[12] = findViewById(R.id.button33);
-        buttons[13] = findViewById(R.id.button34);
-        buttons[14] = findViewById(R.id.button35);
-        buttons[15] = findViewById(R.id.button36);
-        buttons[16] = findViewById(R.id.button29);
-        buttons[17] = findViewById(R.id.button30);
-        buttons[18] = findViewById(R.id.button31);
-        buttons[19] = findViewById(R.id.button32);
-        buttons[20] = findViewById(R.id.button25);
-        buttons[21] = findViewById(R.id.button26);
-        buttons[22] = findViewById(R.id.button27);
-        buttons[23] = findViewById(R.id.button28);
-        buttons[24] = findViewById(R.id.button21);
-        buttons[25] = findViewById(R.id.button24);
-        buttons[26] = findViewById(R.id.button23);
-        buttons[27] = findViewById(R.id.button22);
-        buttons[28] = findViewById(R.id.button17);
-        buttons[29] = findViewById(R.id.button18);
-        buttons[30] = findViewById(R.id.button19);
-        buttons[31] = findViewById(R.id.button20);
-
-        drawer = findViewById(R.id.drawer_layout);
-
-        wyswietlPlansze();
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
     }
 
     //metoda wyświetlająca planszę
@@ -379,11 +407,10 @@ public class MultiActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void endTurn(){
-        if (aktualnyGracz == 1) aktualnyGracz = 2;
-        else aktualnyGracz = 1;
         sendData();
         if (!canPlayerPlay()){
-            Toast.makeText(this, "Gracz nr " + kluczGracza + " wygrał!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Gracz " + GameManager.getUserPlayer().getPlayerName()
+                    + " wygrał!",Toast.LENGTH_SHORT).show();
             //TODO w tym miejscu gracz wygrywa - możecie dodać, co tam Wam pasuje
         }
         waitForTurn();
@@ -391,7 +418,8 @@ public class MultiActivity extends AppCompatActivity {
 
     public void startTurn(){
         if (!canPlayerPlay()){
-            Toast.makeText(this, "Gracz nr " + kluczGracza + " przegrał!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Gracz " + GameManager.getUserPlayer().getPlayerName()
+                    + " przegrał!",Toast.LENGTH_SHORT).show();
             //TODO w tym miejscu gracz przegrywa - możecie dodać, co tam Wam pasuje
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -399,26 +427,53 @@ public class MultiActivity extends AppCompatActivity {
         }
     }
 
-    public void updateData(){
-        //TODO pobieranie danych z serwera
+    public void getData(){
+        GameManager.getGame(GameManager.getUserGame().getId());
+        GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
+            @Override
+            public void onServerResponse(Object obj) {
+                Game game = (Game)obj;
+
+                if (game.getCurrentPlayerId().equals(GameManager.getUserPlayer().getId())) {
+
+                    GameManager.setUserGame(game);
+                    stringToBoard(game.getBoard());
+                    handler.removeCallbacks(runnable);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startTurn();
+                    }
+                }
+            }
+
+            @Override
+            public void onServerFailed() {
+                //TODO jesli nie udalo nie zaktualizowac gry
+            }
+        });
     }
 
     public void sendData(){
-        //TODO wysyłanie danych na serwer
+        aktualnyGracz = GameManager.getUserGame().switchPlayers();
+        GameManager.getUserGame().setBoard(boardToString());
+
+        GameManager.updateGame(GameManager.getUserGame());
+        GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
+            @Override
+            public void onServerResponse(Object obj) {
+                //TODO jesli udalo sie wysłać gre
+            }
+
+            @Override
+            public void onServerFailed() {
+                //TODO jesli nie udalo nie wysłać gry
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void waitForTurn(){
-        try {
-            TimeUnit.SECONDS.sleep((long) 2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        updateData();
-        if (kluczGracza == aktualnyGracz) if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            startTurn();
-        }
-        else waitForTurn();
+        handler.postDelayed(runnable, 0);
     }
 
     public boolean canPlayerPlay(){
@@ -879,19 +934,19 @@ public class MultiActivity extends AppCompatActivity {
         return false;
     }
 
-    public static void stringToTable (String input){
+    public static void stringToBoard (String input){
         for (int i = 0; i < 32; i++){
             tablica[i].setPawn(Character.getNumericValue(input.charAt(i)));
         }
-    } //TODO Metoda do przerabiania Stringa na planszę
+    }
 
-    public static String tableToString(){
+    public static String boardToString(){
         String result = "";
         for (int i = 0; i < 32; i++){
             result += Integer.toString(tablica[i].pawn);
         }
         return result;
-    } //TODO Metoda do przerabiania planszy na Stringa
+    }
 
     class MyField{
         protected int x,y,pawn;

@@ -27,6 +27,7 @@ public class QuitAppService extends Service {
         @Override
         public void onDestroy() { // doesn't guarantee to be invoked (should be onPause / onStop)
 
+            // not deleting player when no second player present
             GameManager.quitGame(true);
 
             super.onDestroy();

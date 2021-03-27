@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.warcaby.GameManager;
+import com.example.warcaby.MultiActivity;
 import com.example.warcaby.R;
 import com.example.warcaby.multiplayer.serialized.Game;
 import com.example.warcaby.multiplayer.serialized.Player;
@@ -76,6 +77,21 @@ public class Lobby extends AppCompatActivity {
         //endregion
 
         // REMEMBER TO REMOVE CALLBACKS FROM HANDLER (its running on another thread)
+        //region start game
+        Button startGameBtn = findViewById(R.id.startGameButton);
+        startGameBtn.setOnClickListener(v -> {
+            try {
+                GameManager.getUserGame().setGameStarted(true);
+                GameManager.updateGame(GameManager.getUserGame());
+                removeRefreshCallbacks();
+                startActivity(new Intent(getBaseContext(), MultiActivity.class));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+        });
+        //endregion
 
         TextView roomName = findViewById(R.id.roomNameLabel);
         roomName.setText(GameManager.getUserGame().getGameName());
@@ -90,6 +106,7 @@ public class Lobby extends AppCompatActivity {
                 public void onServerResponse(Object obj) {
                     List<Player> players = (ArrayList)obj;
 
+                    //region set second player
                     if (GameManager.getSecondPlayer() == null) {
                         Game game = GameManager.getUserGame();
                         for (Player p : players) {
@@ -105,6 +122,12 @@ public class Lobby extends AppCompatActivity {
                                 break;
                             }
                         }
+                    }
+                    //endregion
+
+                    if (GameManager.getUserGame().isGameStarted()) {
+                        removeRefreshCallbacks();
+                        startActivity(new Intent(getBaseContext(), MultiActivity.class));
                     }
 
                     playersList.addAll(players);

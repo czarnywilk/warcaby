@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Handler;
 import android.widget.Toast;
 
 import com.example.warcaby.lobby.Lobby;
@@ -330,13 +331,21 @@ public class GameManager {
         if (game != null) {
             if (getSecondPlayer() == null) {
                 if (deletePlayerOnQuit) {
+                    System.out.println("1");
                     deleteGame(game.getId());
+                    System.out.println("2");
                     deletePlayer(playerId);
+
+                    //Handler handler = new Handler();
+                    //Runnable runnable = () ->  deletePlayer(playerId);
+                    //handler.postDelayed(runnable, 2000);
+                    System.out.println("3");
                 }
                 else {
+                    System.out.println("4");
                     deleteGame(game.getId());
+                    System.out.println("5");
                 }
-
             }
             else {
                 if (deletePlayerOnQuit)
@@ -362,7 +371,9 @@ public class GameManager {
             }
         }
         else if (deletePlayerOnQuit) {
+            System.out.println("6");
             deletePlayer(playerId);
+            System.out.println("7");
         }
     }
 }

@@ -15,6 +15,8 @@ public class Game {
     private Integer blackPlayerId = null;
     @SerializedName("gameName")
     private String gameName;
+    @SerializedName("gameStarted")
+    private boolean gameStarted = false;
     private int id;
 
 
@@ -53,8 +55,14 @@ public class Game {
         else
             return 2;
     }
+    public boolean isGameStarted() {
+        return gameStarted;
+    }
 
     // ------------------------ SETTERS ------------------------
+    public void setBoard(String board) {
+        this.board = board;
+    }
     public void setId(int id) {
         this.id = id;
     }
@@ -66,5 +74,17 @@ public class Game {
     }
     public void setCurrentPlayerId(Integer currentPlayerId) {
         this.currentPlayerId = currentPlayerId;
+    }
+    public void setGameStarted(boolean gameStarted) {
+        this.gameStarted = gameStarted;
+    }
+
+    public int switchPlayers() {
+        if (currentPlayerId.equals(whitePlayerId))
+            currentPlayerId = blackPlayerId;
+        else
+            currentPlayerId = whitePlayerId;
+
+        return currentPlayerId;
     }
 }

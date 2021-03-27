@@ -92,7 +92,7 @@ public class RoomList extends AppCompatActivity {
                     @Override
                     public void onServerResponse(Object obj) {
                         removeRefreshCallbacks();
-                        startActivity(new Intent(RoomList.this, Lobby.class));
+                        startActivity(new Intent(getBaseContext(), Lobby.class));
                     }
 
                     @Override
