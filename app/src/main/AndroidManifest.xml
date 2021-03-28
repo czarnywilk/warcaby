@@ -15,21 +15,25 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:targetApi="m" >
+
         <activity android:name=".MultiActivity" />
         <activity android:name=".lobby.Lobby" />
         <activity android:name=".roomlist.RoomList" />
+
         <activity android:name=".mainmenu.MainMenu" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".MainActivity" />
 
         <service
-            android:name=".service.QuitAppService"
-            android:stopWithTask="false" />
+            android:name="com.example.warcaby.service.QuitAppService"
+            android:stopWithTask="false"
+            android:exported="false"
+            android:process=":quitAppProcess"/>
     </application>
 
 </manifest>

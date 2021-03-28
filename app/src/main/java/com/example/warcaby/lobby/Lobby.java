@@ -85,6 +85,7 @@ public class Lobby extends AppCompatActivity {
                 GameManager.updateGame(GameManager.getUserGame());
                 removeRefreshCallbacks();
                 startActivity(new Intent(getBaseContext(), MultiActivity.class));
+                finish();
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -128,6 +129,7 @@ public class Lobby extends AppCompatActivity {
                     if (GameManager.getUserGame().isGameStarted()) {
                         removeRefreshCallbacks();
                         startActivity(new Intent(getBaseContext(), MultiActivity.class));
+                        finish();
                     }
 
                     playersList.addAll(players);
@@ -171,6 +173,7 @@ public class Lobby extends AppCompatActivity {
             GameManager.quitGame(false);
             removeRefreshCallbacks();
             startActivity(new Intent(getApplicationContext(), RoomList.class));
+            finish();
         });
     }
 }

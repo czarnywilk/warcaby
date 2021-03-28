@@ -39,7 +39,7 @@ public class MultiActivity extends AppCompatActivity {
     MyField selectField = new MyField();
     MyField targetField = new MyField();
 
-    NavigationView menu = findViewById(R.id.drawer_layout); //TODO dodajcie to u siebie
+    NavigationView menu; //= findViewById(R.id.drawer_layout); //TODO dodajcie to u siebie
 
     //------------------------------------------------
 
@@ -49,11 +49,13 @@ public class MultiActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
         try {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            //setSupportActionBar(toolbar);
+
+            menu = findViewById(R.id.nav_view);
             DrawerLayout drawer = findViewById(R.id.drawer_layout);
             menu.setNavigationItemSelectedListener(item -> {
                 if (item.getTitle().equals("Menu Główne")) {
@@ -117,6 +119,7 @@ public class MultiActivity extends AppCompatActivity {
 
             wyswietlPlansze();
 
+            aktualnyGracz = GameManager.getUserGame().getCurrentPlayerId();
             kluczGracza = GameManager.getUserPlayer().getId();
             //region set wait for turn
             handler = new Handler();
