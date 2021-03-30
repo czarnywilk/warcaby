@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.example.warcaby.GameManager;
 import com.example.warcaby.lobby.Lobby;
 import com.example.warcaby.R;
+import com.example.warcaby.multiplayer.PlaceholderUtility;
 import com.example.warcaby.multiplayer.serialized.Game;
 import com.example.warcaby.recyclerview.RoomAdapter;
 
@@ -65,7 +66,7 @@ public class RoomList extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void run() {
-                if (GameManager.hasInternetAccess())
+                if (PlaceholderUtility.hasInternetAccess())
                     Refresh();
                 handler.postDelayed(this, 10000);// 3 sec
             }

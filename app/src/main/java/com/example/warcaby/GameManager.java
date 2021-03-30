@@ -59,21 +59,9 @@ public class GameManager {
         };
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public static boolean hasInternetAccess() {
-
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        return Objects.requireNonNull(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE)).getState() ==
-                NetworkInfo.State.CONNECTED ||
-        Objects.requireNonNull(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)).getState() ==
-                NetworkInfo.State.CONNECTED;
-    }
-
     // ------------------- GETTERS -----------------------
-    public static void getGame (Integer gameId) {
-        Call<Game> call = PlaceholderUtility.getPlaceholderInstance().getGame(gameId);
+    public static void getGame (Game game) {
+        Call<Game> call = PlaceholderUtility.getPlaceholderInstance().getGame(game.getId());
         //final Game[] game = {null};
 
         call.enqueue(new Callback<Game>() {
@@ -84,7 +72,6 @@ public class GameManager {
                     return;
                 }
 
-                //game[0] = response.body();
                 listener.onServerResponse(response.body());
             }
 
@@ -118,8 +105,8 @@ public class GameManager {
             }
         });
     }
-    public static void getPlayersFromGame (Integer gameId) {
-        Call<List<Player>> call = PlaceholderUtility.getPlaceholderInstance().getPlayersFromGame(gameId);
+    public static void getPlayersFromGame (Game game) {
+        Call<List<Player>> call = PlaceholderUtility.getPlaceholderInstance().getPlayersFromGame(game.getId());
         call.enqueue(new Callback<List<Player>>() {
             @Override
             public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
@@ -288,31 +275,46 @@ public class GameManager {
     }
 
     //-------------------- DELETE ------------------------
-    public static void deletePlayer (Integer deletePlayerId) { //TODO don't call on main thread!!!
+    public static void deletePlayer (Integer deletePlayerId) {
 
         Call<Player> call = PlaceholderUtility.getPlaceholderInstance().
                 deletePlayer(deletePlayerId);
 
+
         try {
-            System.out.println("PRE PLAYER DELETED");
-            call.execute();
-            System.out.println("PLAYER DELETED");
+            Runnable runnable = () -> {
+                try {
+                    call.execute();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            };
+            Thread thread = new Thread(runnable);
+            thread.start(); // spawn thread
+            thread.join(); // wait for thread to finish
         }
-        catch (Exception ex) {
-            ex.printStackTrace();
+        catch (InterruptedException ie) {
+            ie.printStackTrace();
         }
     }
-    public static void deleteGame (Integer gameId) { //TODO don't call on main thread!!!
+    public static void deleteGame (Integer gameId) {
 
         Call<Game> call = PlaceholderUtility.getPlaceholderInstance().deleteGame(gameId);
 
         try {
-            System.out.println("PRE GAME DELETED");
-            call.execute();
-            System.out.println("GAME DELETED");
+            Runnable runnable = () -> {
+                try {
+                    call.execute();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            };
+            Thread thread = new Thread(runnable);
+            thread.start(); // spawn thread
+            thread.join(); // wait for thread to finish
         }
-        catch (Exception ex) {
-            ex.printStackTrace();
+        catch (InterruptedException ie) {
+            ie.printStackTrace();
         }
     }
 

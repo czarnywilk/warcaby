@@ -9,10 +9,12 @@ import android.view.View;
 import android.view.Menu;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
+import com.example.warcaby.multiplayer.PlaceholderUtility;
 import com.example.warcaby.multiplayer.serialized.Game;
 import com.google.android.material.internal.NavigationMenu;
 import com.google.android.material.internal.NavigationMenuItemView;
@@ -52,7 +54,7 @@ public class MultiActivity extends AppCompatActivity {
         try {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
-            Toolbar toolbar = findViewById(R.id.toolbar);
+            //Toolbar toolbar = findViewById(R.id.toolbar);
             //setSupportActionBar(toolbar);
 
             menu = findViewById(R.id.nav_view);
@@ -117,22 +119,39 @@ public class MultiActivity extends AppCompatActivity {
 
             drawer = findViewById(R.id.drawer_layout);
 
-            wyswietlPlansze();
-
-            aktualnyGracz = GameManager.getUserGame().getCurrentPlayerId();
-            kluczGracza = GameManager.getUserPlayer().getId();
             //region set wait for turn
+            //aktualnyGracz = GameManager.getUserGame().getCurrentPlayerId();
+            aktualnyGracz = (GameManager.getUserGame().getCurrentPlayerId()
+                    .equals(GameManager.getUserGame().getWhitePlayerId())) ? 1 : 2;
+
+            kluczGracza = GameManager.getUserPlayer().getId()
+                    .equals(GameManager.getUserGame().getWhitePlayerId()) ? 1 : 2;
+
             handler = new Handler();
             runnable = new Runnable() {
                 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                 @Override
                 public void run() {
-                    if (GameManager.hasInternetAccess())
+                    if (PlaceholderUtility.hasInternetAccess())
                         getData();
                     handler.postDelayed(this, 5000);// 5 sec
                 }
             };
+
+            if (aktualnyGracz != kluczGracza) {
+                waitForTurn();
+            }
             //endregion
+
+            TextView imieGracza = findViewById(R.id.imieGracza);
+            imieGracza.setText(GameManager.getUserPlayer().getPlayerName());
+
+            TextView imieOponenta = findViewById(R.id.nazwaOponenta);
+            imieOponenta.setText(GameManager.getSecondPlayer().getPlayerName());
+
+            wyswietlPlansze();
+
+
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -146,7 +165,7 @@ public class MultiActivity extends AppCompatActivity {
         //select = false;
         //hit = false;
         for (int i = 0; i < 32; i++){
-            if (aktualnyGracz == 1){
+            if (kluczGracza == 1){
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (tablica[i].getPawn() == 1) {
                         buttons[i].setForeground(ContextCompat.getDrawable(this, R.drawable.pawn_white_foreground));
@@ -410,6 +429,7 @@ public class MultiActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void endTurn(){
+        wyswietlPlansze();
         sendData();
         if (!canPlayerPlay()){
             Toast.makeText(this, "Gracz " + GameManager.getUserPlayer().getPlayerName()
@@ -428,19 +448,27 @@ public class MultiActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             wyswietlPlansze();
         }
+        System.out.println(aktualnyGracz);
     }
 
     public void getData(){
-        GameManager.getGame(GameManager.getUserGame().getId());
+        GameManager.getGame(GameManager.getUserGame());
         GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
             @Override
             public void onServerResponse(Object obj) {
                 Game game = (Game)obj;
+                //aktualnyGracz = game.switchPlayers();
+                //GameManager.setUserGame(game);
 
                 if (game.getCurrentPlayerId().equals(GameManager.getUserPlayer().getId())) {
 
+
+                    aktualnyGracz = GameManager.getUserGame()
+                            .switchPlayers().equals(game.getWhitePlayerId()) ? 1 : 2;
+
                     GameManager.setUserGame(game);
                     stringToBoard(game.getBoard());
+
                     handler.removeCallbacks(runnable);
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -456,11 +484,15 @@ public class MultiActivity extends AppCompatActivity {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void sendData(){
-        aktualnyGracz = GameManager.getUserGame().switchPlayers();
-        GameManager.getUserGame().setBoard(boardToString());
+        Game game = GameManager.getUserGame();
 
-        GameManager.updateGame(GameManager.getUserGame());
+        aktualnyGracz = game.switchPlayers().equals(game.getWhitePlayerId()) ? 1 : 2;
+
+        game.setBoard(boardToString());
+
+        GameManager.updateGame(game);
         GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
             @Override
             public void onServerResponse(Object obj) {
@@ -476,7 +508,7 @@ public class MultiActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void waitForTurn(){
-        handler.postDelayed(runnable, 0);
+        handler.post(runnable);
     }
 
     public boolean canPlayerPlay(){
@@ -669,7 +701,8 @@ public class MultiActivity extends AppCompatActivity {
 
     public int getIndex(MyField pole){
         for (int i = 0; i<32; i++){
-            if (tablica[i] == pole) return (aktualnyGracz ==1 ? i : 31-i);
+            if (tablica[i] == pole)
+                return (aktualnyGracz == 1 ? i : 31-i);
         }
         return 32;
     }

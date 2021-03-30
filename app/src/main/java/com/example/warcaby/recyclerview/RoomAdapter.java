@@ -41,7 +41,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
 
             holder.joinButton.setOnClickListener(v -> {
                 if (game.getPlayersCount() < 2) {
-                    GameManager.getGame(game.getId());
+                    GameManager.getGame(game);
                     GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
                         @Override
                         public void onServerResponse(Object obj) {

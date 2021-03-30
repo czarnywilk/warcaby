@@ -16,45 +16,28 @@ import com.example.warcaby.multiplayer.serialized.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuitAppService extends IntentService {
+public class QuitAppService extends Service {
 
-    public QuitAppService() {
-        super(null);
-    }
-
-    @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        System.out.println("onHandleIntent : " + intent);
-        if (intent == null) {
-            System.out.println("onTaskRemoved OTHER THREAD CALLED");
-            GameManager.quitGame(true);
-            System.out.println("onTaskRemoved CALL ENDED");
-        }
-    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_NOT_STICKY;
     }
     @Override
     public void onDestroy() {
-        System.out.println("TASK REMOVED");
+
+        GameManager.quitGame(true);
+
         super.onDestroy();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-
-        System.out.println("onTaskRemoved CALLED");
-
-        Runnable runnable = () -> {
-            System.out.println("onTaskRemoved OTHER THREAD CALLED");
-            GameManager.quitGame(true);
-            System.out.println("onTaskRemoved CALL ENDED");
-            stopSelf();
-        };
-        Thread quitThread = new Thread(runnable);
-        quitThread.start();
-
-        //stopSelf();
+        stopSelf();
     }
 }

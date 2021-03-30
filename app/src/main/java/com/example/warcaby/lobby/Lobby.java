@@ -15,10 +15,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.warcaby.GameManager;
 import com.example.warcaby.MultiActivity;
 import com.example.warcaby.R;
+import com.example.warcaby.multiplayer.PlaceholderUtility;
 import com.example.warcaby.multiplayer.serialized.Game;
 import com.example.warcaby.multiplayer.serialized.Player;
 import com.example.warcaby.recyclerview.PlayerAdapter;
@@ -29,8 +31,6 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.warcaby.GameManager.hasInternetAccess;
 
 public class Lobby extends AppCompatActivity {
 
@@ -68,7 +68,7 @@ public class Lobby extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void run() {
-                if (GameManager.hasInternetAccess())
+                if (PlaceholderUtility.hasInternetAccess())
                     Refresh();
                 handler.postDelayed(this, 10000);// 3 sec
             }
@@ -80,16 +80,20 @@ public class Lobby extends AppCompatActivity {
         //region start game
         Button startGameBtn = findViewById(R.id.startGameButton);
         startGameBtn.setOnClickListener(v -> {
-            try {
-                GameManager.getUserGame().setGameStarted(true);
-                GameManager.updateGame(GameManager.getUserGame());
-                removeRefreshCallbacks();
-                startActivity(new Intent(getBaseContext(), MultiActivity.class));
-                finish();
+            if (playersList.size() > 1) {
+                try {
+                    GameManager.getUserGame().setGameStarted(true);
+                    GameManager.updateGame(GameManager.getUserGame());
+                    removeRefreshCallbacks();
+                    startActivity(new Intent(getBaseContext(), MultiActivity.class));
+                    finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println(e.getMessage());
+                }
             }
-            catch (Exception e) {
-                e.printStackTrace();
-                System.out.println(e.getMessage());
+            else {
+                Toast.makeText(this, "Not enough players!", Toast.LENGTH_SHORT).show();
             }
         });
         //endregion
@@ -101,7 +105,7 @@ public class Lobby extends AppCompatActivity {
 
         try {
             playersList.clear();
-            GameManager.getPlayersFromGame(GameManager.getUserPlayer().getGameId());
+            GameManager.getPlayersFromGame(GameManager.getUserGame());
             GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
                 @Override
                 public void onServerResponse(Object obj) {

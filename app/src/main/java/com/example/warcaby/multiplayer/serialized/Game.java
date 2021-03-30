@@ -79,7 +79,7 @@ public class Game {
         this.gameStarted = gameStarted;
     }
 
-    public int switchPlayers() {
+    public Integer switchPlayers() {
         if (currentPlayerId.equals(whitePlayerId))
             currentPlayerId = blackPlayerId;
         else
