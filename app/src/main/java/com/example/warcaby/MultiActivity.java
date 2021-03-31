@@ -1,5 +1,6 @@
 package com.example.warcaby;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,8 +15,10 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
+import com.example.warcaby.mainmenu.MainMenu;
 import com.example.warcaby.multiplayer.PlaceholderUtility;
 import com.example.warcaby.multiplayer.serialized.Game;
+import com.example.warcaby.roomlist.RoomList;
 import com.google.android.material.internal.NavigationMenu;
 import com.google.android.material.internal.NavigationMenuItemView;
 import com.google.android.material.navigation.NavigationView;
@@ -60,10 +63,14 @@ public class MultiActivity extends AppCompatActivity {
             menu = findViewById(R.id.nav_view);
             DrawerLayout drawer = findViewById(R.id.drawer_layout);
             menu.setNavigationItemSelectedListener(item -> {
-                if (item.getTitle().equals("Menu Główne")) {
-                    //TODO przejscie do menu głównego
-                } else if (item.getTitle().equals("Wybór gry")) {
-                    //Todo powrót do wyboru gry
+                if (item.getTitle().equals("Main menu")) {
+                    GameManager.quitGame(true);
+                    startActivity(new Intent(getBaseContext(), MainMenu.class));
+                    finish();
+                } else if (item.getTitle().equals("Quit game")) {
+                    GameManager.quitGame(false);
+                    startActivity(new Intent(getBaseContext(), RoomList.class));
+                    finish();
                 }
                 return true;
             }); //TODO to również dodajcie (od menu.setNavigation...)
@@ -436,7 +443,6 @@ public class MultiActivity extends AppCompatActivity {
                     + " wygrał!",Toast.LENGTH_SHORT).show();
             //TODO w tym miejscu gracz wygrywa - możecie dodać, co tam Wam pasuje
         }
-        waitForTurn();
     }
 
     public void startTurn(){
@@ -496,7 +502,7 @@ public class MultiActivity extends AppCompatActivity {
         GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
             @Override
             public void onServerResponse(Object obj) {
-                //TODO jesli udalo sie wysłać gre
+                waitForTurn();
             }
 
             @Override

@@ -32,6 +32,8 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+
 public class Lobby extends AppCompatActivity {
 
     ArrayList<Player> playersList;
@@ -105,6 +107,26 @@ public class Lobby extends AppCompatActivity {
 
         try {
             playersList.clear();
+
+            final boolean[] gameStarted = {false};
+            Call<Game> call = PlaceholderUtility.getPlaceholderInstance()
+                    .getGame(GameManager.getUserGame().getId());
+            try {
+                Runnable runnable = () -> {
+                    try {
+                        gameStarted[0] = call.execute().body().isGameStarted();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                };
+                Thread thread = new Thread(runnable);
+                thread.start(); // spawn thread
+                thread.join(); // wait for thread to finish
+            }
+            catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+
             GameManager.getPlayersFromGame(GameManager.getUserGame());
             GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
                 @Override
@@ -130,7 +152,7 @@ public class Lobby extends AppCompatActivity {
                     }
                     //endregion
 
-                    if (GameManager.getUserGame().isGameStarted()) {
+                    if (gameStarted[0]) {
                         removeRefreshCallbacks();
                         startActivity(new Intent(getBaseContext(), MultiActivity.class));
                         finish();
