@@ -8,6 +8,16 @@
     android:background="@color/mainBackgroundColor">
 
 
+    <ImageView
+        android:id="@+id/imageView34"
+        android:layout_width="337dp"
+        android:layout_height="448dp"
+        app:layout_constraintBottom_toTopOf="@+id/playerNameInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo_warcaby1" />
+
     <EditText
         android:id="@+id/playerNameInput"
         android:layout_width="wrap_content"
