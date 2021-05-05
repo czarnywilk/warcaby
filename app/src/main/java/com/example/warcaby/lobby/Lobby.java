@@ -78,7 +78,6 @@ public class Lobby extends AppCompatActivity {
         handler.postDelayed(runnable, 0);
         //endregion
 
-        // REMEMBER TO REMOVE CALLBACKS FROM HANDLER (its running on another thread)
         //region start game
         Button startGameBtn = findViewById(R.id.startGameButton);
         startGameBtn.setOnClickListener(v -> {

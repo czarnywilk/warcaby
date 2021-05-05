@@ -134,9 +134,4 @@ public class RoomList extends AppCompatActivity {
     public static void removeRefreshCallbacks() {
         handler.removeCallbacks(runnable);
     }
-
-    @Override
-    public void onBackPressed() {
-        //TODO dont do anything
-    }
 }

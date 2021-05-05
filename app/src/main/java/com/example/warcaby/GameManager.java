@@ -1,26 +1,16 @@
 package com.example.warcaby;
 
-import androidx.annotation.RequiresApi;
-
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Handler;
 import android.widget.Toast;
 
 import com.example.warcaby.lobby.Lobby;
-import com.example.warcaby.multiplayer.JsonPlaceholderAPI;
 import com.example.warcaby.multiplayer.PlaceholderUtility;
 import com.example.warcaby.multiplayer.serialized.Game;
 import com.example.warcaby.multiplayer.serialized.Player;
 import com.example.warcaby.roomlist.RoomList;
-import com.example.warcaby.service.QuitAppService;
 
 import java.util.List;
-import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -62,13 +52,12 @@ public class GameManager {
     // ------------------- GETTERS -----------------------
     public static void getGame (Game game) {
         Call<Game> call = PlaceholderUtility.getPlaceholderInstance().getGame(game.getId());
-        //final Game[] game = {null};
 
         call.enqueue(new Callback<Game>() {
             @Override
             public void onResponse(Call<Game> call, Response<Game> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(mContext,"Connection unsuccessful!", Toast.LENGTH_SHORT).show();
+                    listener.onServerFailed();
                     return;
                 }
 
@@ -229,6 +218,7 @@ public class GameManager {
             @Override
             public void onResponse(Call<Game> call, Response<Game> response) {
                 if (!response.isSuccessful()) {
+                    listener.onServerFailed();
                     return;
                 }
                 Toast.makeText(mContext,"Game created!", Toast.LENGTH_SHORT).show();
@@ -260,6 +250,7 @@ public class GameManager {
             public void onResponse(Call<Game> call, Response<Game> response) {
 
                 if (!response.isSuccessful()) {
+                    listener.onServerFailed();
                     return;
                 }
                 Toast.makeText(mContext,"Player created!", Toast.LENGTH_SHORT).show();
@@ -326,17 +317,9 @@ public class GameManager {
         if (game != null) {
             if (getSecondPlayer() == null) {
                 if (deletePlayerOnQuit) {
-                    System.out.println("1");
-                    deleteGame(game.getId());
-                    System.out.println("2");
                     deletePlayer(playerId);
-                    System.out.println("3");
                 }
-                else {
-                    System.out.println("4");
-                    deleteGame(game.getId());
-                    System.out.println("5");
-                }
+                deleteGame(game.getId());
             }
             else {
                 if (deletePlayerOnQuit)
@@ -363,9 +346,7 @@ public class GameManager {
             }
         }
         else if (deletePlayerOnQuit) {
-            System.out.println("6");
             deletePlayer(playerId);
-            System.out.println("7");
         }
     }
 }

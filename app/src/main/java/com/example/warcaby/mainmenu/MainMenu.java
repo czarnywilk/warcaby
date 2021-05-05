@@ -72,6 +72,10 @@ public class MainMenu extends AppCompatActivity {
                     });
                 }
             }
+            else {
+                Toast.makeText(GameManager.getContext(),
+                        "Enter your name first!", Toast.LENGTH_SHORT).show();
+            }
         });
 
         enterLocalGame.setOnClickListener(v -> {

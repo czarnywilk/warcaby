@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,28 +41,34 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
             holder.playersCount.setText(players);
 
             holder.joinButton.setOnClickListener(v -> {
-                if (game.getPlayersCount() < 2) {
                     GameManager.getGame(game);
                     GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
                         @Override
                         public void onServerResponse(Object obj) {
                             Game _game = (Game) obj;
-                            if (_game.getCurrentPlayerId() == null) {
-                                _game.setWhitePlayerId(GameManager.getUserPlayer().getId());
-                                _game.setCurrentPlayerId(GameManager.getUserPlayer().getId());
+                            if (_game.getPlayersCount() < 2) {
+                                if (_game.getCurrentPlayerId() == null) {
+                                    _game.setWhitePlayerId(GameManager.getUserPlayer().getId());
+                                    _game.setCurrentPlayerId(GameManager.getUserPlayer().getId());
+                                }
+                                else {
+                                    _game.setBlackPlayerId(GameManager.getUserPlayer().getId());
+                                }
+                                GameManager.joinGame(_game);
                             }
                             else {
-                                _game.setBlackPlayerId(GameManager.getUserPlayer().getId());
+                                Toast.makeText(GameManager.getContext(),
+                                        "Too many players!", Toast.LENGTH_SHORT).show();
                             }
-                            GameManager.joinGame(_game);
                         }
 
                         @Override
                         public void onServerFailed() {
-
+                            Toast.makeText(GameManager.getContext(),
+                                    "Connection failed!", Toast.LENGTH_SHORT).show();
                         }
                     });
-                }
+
             });
         }
     }
