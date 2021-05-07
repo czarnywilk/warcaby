@@ -6,11 +6,8 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Menu Główne" />
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Wybór gry" />
+            android:icon="@drawable/abc_vector_test"
+            android:title="Menu " />
+
     </group>
 </menu>

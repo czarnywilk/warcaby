@@ -26,12 +26,13 @@ import com.google.android.material.navigation.NavigationView;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MultiActivity extends AppCompatActivity {
+public class MultiActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private AppBarConfiguration mAppBarConfiguration;
     public Button[] buttons = new Button[32];
@@ -80,6 +81,12 @@ public class MultiActivity extends AppCompatActivity {
                     R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
                     .setDrawerLayout(drawer)
                     .build();
+
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            View headerView = navigationView.getHeaderView(0);
+            TextView navUsername = (TextView) headerView.findViewById(R.id.game_mode_info);
+            navUsername.setText("MULTI PLAYER");
+            navigationView.setNavigationItemSelectedListener(this);
 
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 4; j++) {
@@ -989,7 +996,26 @@ public class MultiActivity extends AppCompatActivity {
         }
         return result;
     }
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
+        if(item.getItemId()==R.id.nav_home){
+            startActivity(new Intent(MultiActivity.this, MainMenu.class));
+            finish();
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout navigationView = (DrawerLayout)findViewById(R.id.drawer_layout);
+        if (navigationView.isDrawerOpen(GravityCompat.START)) {
+            navigationView.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
     class MyField{
         protected int x,y,pawn;
 

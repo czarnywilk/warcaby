@@ -1,36 +1,29 @@
 package com.example.warcaby;
 
+import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.renderscript.Allocation;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.Object.*;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.example.warcaby.mainmenu.MainMenu;
 import com.google.android.material.navigation.NavigationView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.TypedArrayUtils;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.core.view.GravityCompat;
 import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
 
     private AppBarConfiguration mAppBarConfiguration;
     public Button buttons[] = new Button[32];
@@ -48,30 +41,37 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Toolbar toolbar = findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+
+
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         menu = findViewById(R.id.nav_view); //TODO ten wiersz też dodajcie
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
 
-        menu.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if (item.getTitle().equals("Menu Główne")){
-                    //TODO przejscie do menu głównego
-                }
-                else if (item.getTitle().equals("Wybór gry")){
-                    //Todo powrót do wyboru gry
-                }
-                return true;
+        menu.setNavigationItemSelectedListener(item -> {
+            if(item.getItemId()==R.id.nav_home){
+                startActivity(new Intent(MainActivity.this, MainMenu.class));
+                finish();
             }
+            return true;
         }); //TODO to również dodajcie (od menu.setNavigation...) - to już ostatnie, słowo harcerza :)
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
                 .setDrawerLayout(drawer)
                 .build();
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //TextView x = (TextView)findViewById(R.id.game_mode_info);
+        //x.setText("SINGLE MODE");
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View headerView = navigationView.getHeaderView(0);
+        TextView navUsername = (TextView) headerView.findViewById(R.id.game_mode_info);
+        navUsername.setText("SINGLE PLAYER");
+
 
         for (int i = 0; i < 8; i++){
             for (int j = 0; j < 4; j++){
@@ -865,6 +865,17 @@ public class MainActivity extends AppCompatActivity {
             result += Integer.toString(tablica[i].pawn);
         }
         return result;
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout navigationView = (DrawerLayout)findViewById(R.id.drawer_layout);
+        if (navigationView.isDrawerOpen(GravityCompat.START)) {
+            navigationView.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     class MyField{

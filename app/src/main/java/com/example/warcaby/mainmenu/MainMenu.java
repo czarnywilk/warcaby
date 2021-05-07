@@ -1,6 +1,7 @@
 package com.example.warcaby.mainmenu;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,6 +23,9 @@ public class MainMenu extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+
+        Toolbar toolbar = findViewById(R.id.menu_toolbar);
+        setSupportActionBar(toolbar);
 
         GameManager.setContext(this); // uruchomic raz na activity
         PlaceholderUtility.initialize(); // raz na cala aplikacje
@@ -79,11 +83,10 @@ public class MainMenu extends AppCompatActivity {
         });
 
         enterLocalGame.setOnClickListener(v -> {
-            String Name = playerName.getText().toString();
-            if(!Name.isEmpty()) {
+
                 startActivity(new Intent(MainMenu.this, MainActivity.class));
-                finish();
-            }
+
+
         });
     }
 }

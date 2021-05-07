@@ -5,7 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".roomlist.RoomList"
-    android:background="@color/mainBackgroundColor">
+    android:background="@color/mainBackgroundColor"
+    >
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <TextView
         android:id="@+id/roomListLabel"
@@ -16,10 +32,11 @@
         android:text="@string/room_list_label"
 
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.02" />
+        app:layout_constraintVertical_bias="0.1" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewGames"
@@ -27,11 +44,13 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:layout_marginBottom="200dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="110dp"
         app:layout_constraintBottom_toTopOf="@+id/roomNameInput"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/roomListLabel" />
+        app:layout_constraintTop_toBottomOf="@id/roomListLabel"
+        />
+
 
 
     <EditText

@@ -2,6 +2,7 @@ package com.example.warcaby.lobby;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -101,6 +102,8 @@ public class Lobby extends AppCompatActivity {
 
         TextView roomName = findViewById(R.id.roomNameLabel);
         roomName.setText(GameManager.getUserGame().getGameName());
+        Toolbar toolbar = findViewById(R.id.lobby_toolbar);
+        setSupportActionBar(toolbar);
     }
     void Refresh(){
 

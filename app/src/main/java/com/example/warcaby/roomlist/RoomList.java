@@ -2,6 +2,7 @@ package com.example.warcaby.roomlist;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,7 +43,8 @@ public class RoomList extends AppCompatActivity {
 
         Button createRoom = findViewById(R.id.createRoomButton);
         EditText gameName = findViewById(R.id.roomNameInput);
-
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         //region recycler view setup
         RecyclerView recyclerView = findViewById(R.id.recyclerViewGames);
