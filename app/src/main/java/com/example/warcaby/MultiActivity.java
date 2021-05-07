@@ -13,8 +13,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
+import com.example.warcaby.lobby.Lobby;
 import com.example.warcaby.mainmenu.MainMenu;
 import com.example.warcaby.multiplayer.PlaceholderUtility;
 import com.example.warcaby.multiplayer.serialized.Game;
@@ -32,7 +34,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-public class MultiActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MultiActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     public Button[] buttons = new Button[32];
@@ -45,7 +47,7 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
     MyField selectField = new MyField();
     MyField targetField = new MyField();
 
-    NavigationView menu; //= findViewById(R.id.drawer_layout); //TODO dodajcie to u siebie
+    NavigationView menu;
 
     //------------------------------------------------
 
@@ -58,40 +60,33 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
         try {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
-            //Toolbar toolbar = findViewById(R.id.toolbar);
-            //setSupportActionBar(toolbar);
 
             menu = findViewById(R.id.nav_view);
             DrawerLayout drawer = findViewById(R.id.drawer_layout);
             menu.setNavigationItemSelectedListener(item -> {
-                if (item.getTitle().equals("Main menu")) {
-                    GameManager.quitGame(true);
-                    startActivity(new Intent(getBaseContext(), MainMenu.class));
-                    finish();
-                } else if (item.getTitle().equals("Quit game")) {
+                if(item.getItemId()==R.id.nav_home){
                     GameManager.quitGame(false);
-                    startActivity(new Intent(getBaseContext(), RoomList.class));
+                    startActivity(new Intent(MultiActivity.this, RoomList.class));
                     finish();
                 }
                 return true;
-            }); //TODO to również dodajcie (od menu.setNavigation...)
-            // Passing each menu ID as a set of Ids because each
-            // menu should be considered as top level destinations.
+            });
+
             mAppBarConfiguration = new AppBarConfiguration.Builder(
                     R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
                     .setDrawerLayout(drawer)
                     .build();
 
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-            View headerView = navigationView.getHeaderView(0);
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+
+            View headerView = menu.getHeaderView(0);
             TextView navUsername = (TextView) headerView.findViewById(R.id.game_mode_info);
             navUsername.setText("MULTI PLAYER");
-            navigationView.setNavigationItemSelectedListener(this);
 
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 4; j++) {
                     tablica[i * 4 + j] = new MyField(j * 2 + ((i % 2)) + 1, i + 1, 0);
-                    //else tablica[i*4 + j] = new MyField(j*2+((i%2)), i+1, 0);
                     if (i < 2) tablica[i * 4 + j].setPawn(1);
                     else if (i > 5) tablica[i * 4 + j].setPawn(2);
                 }
@@ -134,12 +129,11 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
             drawer = findViewById(R.id.drawer_layout);
 
             //region set wait for turn
-            //aktualnyGracz = GameManager.getUserGame().getCurrentPlayerId();
-            aktualnyGracz = (GameManager.getUserGame().getCurrentPlayerId()
-                    .equals(GameManager.getUserGame().getWhitePlayerId())) ? 1 : 2;
-
-            kluczGracza = GameManager.getUserPlayer().getId()
-                    .equals(GameManager.getUserGame().getWhitePlayerId()) ? 1 : 2;
+            Integer playerId = GameManager.getUserPlayer().getId();
+            Integer whiteId = GameManager.getUserGame().getWhitePlayerId();
+            Integer currentId = GameManager.getUserGame().getCurrentPlayerId();
+            aktualnyGracz =  currentId.equals(whiteId) ? 1 : 2;
+            kluczGracza = playerId.equals(whiteId) ? 1 : 2;
 
             handler = new Handler();
             runnable = new Runnable() {
@@ -148,6 +142,9 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
                 public void run() {
                     if (PlaceholderUtility.hasInternetAccess())
                         getData();
+                    System.out.println("Gracz " +
+                            GameManager.getUserPlayer().getPlayerName() +
+                            " czeka na przeciwnika...");
                     handler.postDelayed(this, 5000);// 5 sec
                 }
             };
@@ -164,8 +161,6 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
             imieOponenta.setText(GameManager.getSecondPlayer().getPlayerName());
 
             wyswietlPlansze();
-
-
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -176,8 +171,6 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
     //metoda wyświetlająca planszę
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void wyswietlPlansze(){
-        //select = false;
-        //hit = false;
         for (int i = 0; i < 32; i++){
             if (kluczGracza == 1){
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -240,6 +233,12 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     //metoda obsługująca wciśnięcie przycisku
     public void buttonClicked(View view){
+
+        if (aktualnyGracz != kluczGracza) {
+            System.out.println("Nie moja kolei");
+            return;
+        }
+        System.out.println("Moja kolei");
 
         if (aktualnyGracz == kluczGracza){
             int index = -1;
@@ -448,7 +447,6 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
         if (!canPlayerPlay()){
             Toast.makeText(this, "Gracz " + GameManager.getUserPlayer().getPlayerName()
                     + " wygrał!",Toast.LENGTH_SHORT).show();
-            //TODO w tym miejscu gracz wygrywa - możecie dodać, co tam Wam pasuje
         }
     }
 
@@ -456,53 +454,78 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
         if (!canPlayerPlay()){
             Toast.makeText(this, "Gracz " + GameManager.getUserPlayer().getPlayerName()
                     + " przegrał!",Toast.LENGTH_SHORT).show();
-            //TODO w tym miejscu gracz przegrywa - możecie dodać, co tam Wam pasuje
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             wyswietlPlansze();
         }
-        System.out.println(aktualnyGracz);
+        System.out.println("start turn: " + aktualnyGracz);
     }
 
     public void getData(){
-        GameManager.getGame(GameManager.getUserGame());
-        GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
+        try {
+            GameManager.getGame(GameManager.getUserGame());
+            GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
             @Override
             public void onServerResponse(Object obj) {
                 Game game = (Game)obj;
-                //aktualnyGracz = game.switchPlayers();
-                //GameManager.setUserGame(game);
 
-                if (game.getCurrentPlayerId().equals(GameManager.getUserPlayer().getId())) {
+                if (game != null) {
 
-
-                    aktualnyGracz = GameManager.getUserGame()
-                            .switchPlayers().equals(game.getWhitePlayerId()) ? 1 : 2;
-
+                    Game oldGame = GameManager.getUserGame();
                     GameManager.setUserGame(game);
-                    stringToBoard(game.getBoard());
 
-                    handler.removeCallbacks(runnable);
+                    if (game.getPlayersCount() < 2) {
+                        System.out.println("getData: Not enough players, entering lobby...");
+                        handler.removeCallbacks(runnable);
+                        GameManager.setSecondPlayer(null);
+                        startActivity(new Intent(getBaseContext(), Lobby.class));
+                        finish();
+                        return;
+                    }
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        startTurn();
+                    if (game.getCurrentPlayerId().equals(GameManager.getUserPlayer().getId())) {
+                        aktualnyGracz = oldGame.switchPlayers().equals(game.getWhitePlayerId()) ? 1 : 2;
+
+                        stringToBoard(game.getBoard());
+
+                        handler.removeCallbacks(runnable);
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            startTurn();
+                        }
                     }
                 }
             }
 
             @Override
             public void onServerFailed() {
-                //TODO jesli nie udalo nie zaktualizowac gry
+                System.out.println("Failed to get data from server!");
             }
         });
+        }
+        catch (ClassCastException cce) {
+            System.err.println("Error while casting: " + cce.getMessage());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void sendData(){
-        Game game = GameManager.getUserGame();
+        // check if someone left before user moved
+        Game game = GameManager.getGame_sync(GameManager.getUserGame().getId());
+        GameManager.setUserGame(game);
+        if (game.getPlayersCount() < 2) {
+            System.out.println("sendData: Not enough players, entering lobby...");
+            handler.removeCallbacks(runnable);
+            GameManager.setSecondPlayer(null);
+            startActivity(new Intent(getBaseContext(), Lobby.class));
+            finish();
+            return;
+        }
 
         aktualnyGracz = game.switchPlayers().equals(game.getWhitePlayerId()) ? 1 : 2;
-
         game.setBoard(boardToString());
 
         GameManager.updateGame(game);
@@ -514,7 +537,7 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
 
             @Override
             public void onServerFailed() {
-                //TODO jesli nie udalo nie wysłać gry
+                System.out.println("Failed to send data to server!");
             }
         });
     }
@@ -996,16 +1019,6 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
         }
         return result;
     }
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-        if(item.getItemId()==R.id.nav_home){
-            startActivity(new Intent(MultiActivity.this, MainMenu.class));
-            finish();
-        }
-
-        return true;
-    }
 
     @Override
     public void onBackPressed() {
@@ -1016,6 +1029,7 @@ public class MultiActivity extends AppCompatActivity implements NavigationView.O
             super.onBackPressed();
         }
     }
+
     class MyField{
         protected int x,y,pawn;
 

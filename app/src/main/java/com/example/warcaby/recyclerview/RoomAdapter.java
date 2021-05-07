@@ -47,7 +47,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.RoomViewHolder
                         public void onServerResponse(Object obj) {
                             Game _game = (Game) obj;
                             if (_game.getPlayersCount() < 2) {
-                                if (_game.getCurrentPlayerId() == null) {
+                                if (_game.getWhitePlayerId() == null) {
                                     _game.setWhitePlayerId(GameManager.getUserPlayer().getId());
                                     _game.setCurrentPlayerId(GameManager.getUserPlayer().getId());
                                 }

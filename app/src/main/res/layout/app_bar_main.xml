@@ -7,8 +7,6 @@
     tools:context=".MainActivity"
     android:theme="@style/AppTheme.NoActionBar">
 
-
-
     <include
         android:id="@+id/plansza"
         layout="@layout/content_main"

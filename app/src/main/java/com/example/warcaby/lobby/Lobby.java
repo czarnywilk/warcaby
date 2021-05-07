@@ -32,6 +32,7 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 import retrofit2.Call;
 
@@ -73,7 +74,7 @@ public class Lobby extends AppCompatActivity {
             public void run() {
                 if (PlaceholderUtility.hasInternetAccess())
                     Refresh();
-                handler.postDelayed(this, 10000);// 3 sec
+                handler.postDelayed(this, 5000);// 5 sec
             }
         };
         handler.postDelayed(runnable, 0);
@@ -82,13 +83,15 @@ public class Lobby extends AppCompatActivity {
         //region start game
         Button startGameBtn = findViewById(R.id.startGameButton);
         startGameBtn.setOnClickListener(v -> {
-            if (playersList.size() > 1) {
+            if (GameManager.getSecondPlayer() != null) {
                 try {
                     GameManager.getUserGame().setGameStarted(true);
-                    GameManager.updateGame(GameManager.getUserGame());
+                    Game game = GameManager.updateGame_sync(GameManager.getUserGame());
                     removeRefreshCallbacks();
-                    startActivity(new Intent(getBaseContext(), MultiActivity.class));
-                    finish();
+                    if (game != null) {
+                        startActivity(new Intent(getBaseContext(), MultiActivity.class));
+                        finish();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.out.println(e.getMessage());
@@ -106,73 +109,63 @@ public class Lobby extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
     void Refresh(){
-
         try {
             playersList.clear();
 
-            final boolean[] gameStarted = {false};
-            Call<Game> call = PlaceholderUtility.getPlaceholderInstance()
-                    .getGame(GameManager.getUserGame().getId());
+            Game game = GameManager.getGame_sync(GameManager.getUserGame().getId());
+            if (game == null) {
+                System.out.println("User game is null!");
+                return;
+            }
+
             try {
-                Runnable runnable = () -> {
-                    try {
-                        gameStarted[0] = call.execute().body().isGameStarted();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                };
-                Thread thread = new Thread(runnable);
-                thread.start(); // spawn thread
-                thread.join(); // wait for thread to finish
-            }
-            catch (InterruptedException ie) {
-                ie.printStackTrace();
-            }
+                GameManager.getPlayersFromGame(game);
+                GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
+                    @Override
+                    public void onServerResponse(Object obj) {
+                        if(obj!=null){
+                            ArrayList<Player> players = (ArrayList)obj;
 
-            GameManager.getPlayersFromGame(GameManager.getUserGame());
-            GameManager.setServerCallbackListener(new GameManager.ServerCallbackListener() {
-                @Override
-                public void onServerResponse(Object obj) {
-                    List<Player> players = (ArrayList)obj;
-
-                    //region set second player
-                    if (GameManager.getSecondPlayer() == null) {
-                        Game game = GameManager.getUserGame();
-                        for (Player p : players) {
-                            if (!p.getId().equals(GameManager.getUserPlayer().getId())) {
-                                GameManager.setSecondPlayer(p);
-                                if (game.getWhitePlayerId() == null) {
-                                    game.setWhitePlayerId(p.getId());
-                                    game.setCurrentPlayerId(p.getId());
+                            if (GameManager.getSecondPlayer() == null) {
+                                for (Player p : players) {
+                                    if (!p.getId().equals(GameManager.getUserPlayer().getId())) {
+                                        GameManager.setSecondPlayer(p);
+                                        if (game.getWhitePlayerId() == null) {
+                                            game.setWhitePlayerId(p.getId());
+                                            game.setCurrentPlayerId(p.getId());
+                                        }
+                                        else if (game.getBlackPlayerId() == null) {
+                                            game.setBlackPlayerId(p.getId());
+                                        }
+                                        break;
+                                    }
                                 }
-                                else if (game.getBlackPlayerId() == null) {
-                                    game.setBlackPlayerId(p.getId());
-                                }
-                                break;
                             }
+
+                            GameManager.setUserGame(game);
+                            if (game.isGameStarted() && game.getPlayersCount() > 1) {
+                                removeRefreshCallbacks();
+                                startActivity(new Intent(getBaseContext(), MultiActivity.class));
+                                finish();
+                            }
+
+                            playersList.addAll(players);
+                            playerAdapter.notifyDataSetChanged();
                         }
                     }
-                    //endregion
 
-                    if (gameStarted[0]) {
-                        removeRefreshCallbacks();
-                        startActivity(new Intent(getBaseContext(), MultiActivity.class));
-                        finish();
+                    @Override
+                    public void onServerFailed() {
+                        System.err.println("Failed to get players!");
                     }
-
-                    playersList.addAll(players);
-                    playerAdapter.notifyDataSetChanged();
-                }
-
-                @Override
-                public void onServerFailed() {
-
-                }
-            });
-
+                });
+            }
+            catch (ClassCastException cce) {
+                System.err.println("Error while casting: " + cce.getMessage());
+            }
         }
         catch (Exception e) {
-            Log.e("test", e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -182,7 +175,6 @@ public class Lobby extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        //moveTaskToBack(true);
         View window = findViewById(R.id.quitWindow);
 
         window.setVisibility(View.VISIBLE);

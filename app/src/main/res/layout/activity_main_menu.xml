@@ -25,22 +25,28 @@
 
     <ImageView
         android:id="@+id/imageView34"
-        android:layout_width="320dp"
-        android:layout_height="328dp"
-        android:layout_marginTop="80dp"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:layout_marginTop="40dp"
+
+        android:scaleX="0.9"
+        android:scaleY="0.9"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+
         app:layout_constraintBottom_toTopOf="@+id/playerNameInput"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
-        app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/warcaby" />
 
     <EditText
         android:id="@+id/playerNameInput"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="20dp"
         android:autofillHints=""
 
         android:hint="@string/enter_player_name_hint"
@@ -48,7 +54,7 @@
         app:layout_constraintBottom_toTopOf="@+id/startOnlineGameButton"
         app:layout_constraintEnd_toEndOf="parent"
 
-        app:layout_constraintHorizontal_bias="0.516"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button

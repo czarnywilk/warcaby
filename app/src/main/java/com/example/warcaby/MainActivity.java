@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity  {
     MyField selectField = new MyField();
     MyField targetField = new MyField();
 
-    NavigationView menu; //TODO dodajcie to u siebie
+    NavigationView menu;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -42,12 +42,8 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        menu = findViewById(R.id.nav_view); //TODO ten wiersz też dodajcie
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+        menu = findViewById(R.id.nav_view);
 
         menu.setNavigationItemSelectedListener(item -> {
             if(item.getItemId()==R.id.nav_home){
@@ -55,7 +51,7 @@ public class MainActivity extends AppCompatActivity  {
                 finish();
             }
             return true;
-        }); //TODO to również dodajcie (od menu.setNavigation...) - to już ostatnie, słowo harcerza :)
+        });
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
@@ -65,10 +61,7 @@ public class MainActivity extends AppCompatActivity  {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //TextView x = (TextView)findViewById(R.id.game_mode_info);
-        //x.setText("SINGLE MODE");
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        View headerView = navigationView.getHeaderView(0);
+        View headerView = menu.getHeaderView(0);
         TextView navUsername = (TextView) headerView.findViewById(R.id.game_mode_info);
         navUsername.setText("SINGLE PLAYER");
 
@@ -76,7 +69,6 @@ public class MainActivity extends AppCompatActivity  {
         for (int i = 0; i < 8; i++){
             for (int j = 0; j < 4; j++){
                 tablica[i*4 + j] = new MyField(j*2+((i%2))+1, i+1, 0);
-                //else tablica[i*4 + j] = new MyField(j*2+((i%2)), i+1, 0);
                 if (i<2) tablica[i*4 + j].setPawn(1);
                 else if (i>5) tablica[i*4 + j].setPawn(2);
             }
@@ -119,8 +111,6 @@ public class MainActivity extends AppCompatActivity  {
     //metoda wyświetlająca planszę
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void wyswietlPlansze(){
-        //select = false;
-        //hit = false;
         for (int i = 0; i < 32; i++){
             if (nrGracza == 1){
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
