@@ -66,6 +66,7 @@ public class MultiActivity extends AppCompatActivity {
             menu.setNavigationItemSelectedListener(item -> {
                 if(item.getItemId()==R.id.nav_home){
                     GameManager.quitGame(false);
+                    handler.removeCallbacks(runnable);
                     startActivity(new Intent(MultiActivity.this, RoomList.class));
                     finish();
                 }
