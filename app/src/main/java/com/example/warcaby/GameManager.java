@@ -376,7 +376,7 @@ public class GameManager {
     // -------------------- QUIT -------------------------
     public static void quitGame(boolean deletePlayerOnQuit) {
         try {
-            Game game = getGame_sync(getUserGame().getId());
+            Game game = getGame_sync(getUserPlayer().getGameId());
             Integer playerId = getUserPlayer().getId();
 
             if (game != null) {
@@ -395,7 +395,8 @@ public class GameManager {
                     if (game.getWhitePlayerId() != null &&
                             game.getWhitePlayerId().equals(playerId)) {
                         game.setWhitePlayerId(null);
-                    } else if (game.getBlackPlayerId() != null &&
+                    }
+                    else if (game.getBlackPlayerId() != null &&
                             game.getBlackPlayerId().equals(playerId)) {
                         game.setBlackPlayerId(null);
                     }

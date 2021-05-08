@@ -47,7 +47,6 @@ public class MainMenu extends AppCompatActivity {
                         public void onServerResponse(Object obj) {
                             enterOnlineGame.setText("Change name");
                             startActivity(new Intent(MainMenu.this, RoomList.class));
-                            finish();
                         }
 
                         @Override
@@ -65,7 +64,6 @@ public class MainMenu extends AppCompatActivity {
                         @Override
                         public void onServerResponse(Object obj) {
                             startActivity(new Intent(getApplicationContext(), RoomList.class));
-                            finish();
                         }
 
                         @Override
@@ -83,10 +81,7 @@ public class MainMenu extends AppCompatActivity {
         });
 
         enterLocalGame.setOnClickListener(v -> {
-
                 startActivity(new Intent(MainMenu.this, MainActivity.class));
-
-
         });
     }
 }

@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity  {
 
         menu.setNavigationItemSelectedListener(item -> {
             if(item.getItemId()==R.id.nav_home){
-                startActivity(new Intent(MainActivity.this, MainMenu.class));
+                moveTaskToBack(false);
                 finish();
             }
             return true;

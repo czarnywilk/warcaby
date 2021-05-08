@@ -25,6 +25,8 @@ public class QuitAppService extends Service {
     @Override
     public void onDestroy() {
 
+        System.out.println("App destroyed");
+
         GameManager.quitGame(true);
 
         super.onDestroy();
