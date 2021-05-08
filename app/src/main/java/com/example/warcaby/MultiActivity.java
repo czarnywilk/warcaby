@@ -149,7 +149,7 @@ public class MultiActivity extends AppCompatActivity {
                 }
             };
 
-            if (aktualnyGracz != kluczGracza) {
+            if (!playerId.equals(whiteId)) {
                 waitForTurn();
             }
             //endregion
