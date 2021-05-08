@@ -83,6 +83,13 @@ public class Lobby extends AppCompatActivity {
         //region start game
         Button startGameBtn = findViewById(R.id.startGameButton);
         startGameBtn.setOnClickListener(v -> {
+
+            Game _game = GameManager.getGame_sync(GameManager.getUserGame().getId());
+            if (_game.getPlayersCount() < 2) {
+                GameManager.setSecondPlayer(null);
+                GameManager.setUserGame(_game);
+            }
+
             if (GameManager.getSecondPlayer() != null) {
                 try {
                     GameManager.getUserGame().setGameStarted(true);
