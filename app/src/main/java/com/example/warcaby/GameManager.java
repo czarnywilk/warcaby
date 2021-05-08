@@ -406,6 +406,8 @@ public class GameManager {
                     }
 
                     game.setGameStarted(false);
+                    setSecondPlayer(null);
+                    game.setBoard(MultiActivity.cleanBoard);
                     updateGame_sync(game);
                 }
             } else if (deletePlayerOnQuit) {
