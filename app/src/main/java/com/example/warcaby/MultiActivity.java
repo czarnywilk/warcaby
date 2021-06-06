@@ -446,15 +446,29 @@ public class MultiActivity extends AppCompatActivity {
         wyswietlPlansze();
         sendData();
         if (!canPlayerPlay()){
-            Toast.makeText(this, "Gracz " + GameManager.getUserPlayer().getPlayerName()
-                    + " wygrał!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    this,
+                    "Wygrałeś!",
+                    Toast.LENGTH_SHORT
+            ).show();
+            handler.removeCallbacks(runnable);
+            GameManager.quitGame(false);
+            startActivity(new Intent(getBaseContext(), RoomList.class));
+            finish();
         }
     }
 
     public void startTurn(){
         if (!canPlayerPlay()){
-            Toast.makeText(this, "Gracz " + GameManager.getUserPlayer().getPlayerName()
-                    + " przegrał!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    this,
+                    "Gracz " + GameManager.getSecondPlayer().getPlayerName() + " wygrał!",
+                    Toast.LENGTH_SHORT
+            ).show();
+            handler.removeCallbacks(runnable);
+            GameManager.quitGame(false);
+            startActivity(new Intent(getBaseContext(), RoomList.class));
+            finish();
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             wyswietlPlansze();

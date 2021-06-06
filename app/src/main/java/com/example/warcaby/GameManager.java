@@ -33,7 +33,7 @@ public class GameManager {
     private static Player secondPlayer;
     private static Game userGame;
 
-    private static Context mContext; // memory leak :(
+    private static Context mContext;
     public static void setContext(Context context) {
         mContext = context;
         listener = new ServerCallbackListener() {
@@ -376,27 +376,33 @@ public class GameManager {
     // -------------------- QUIT -------------------------
     public static void quitGame(boolean deletePlayerOnQuit) {
         try {
-            Game game = getGame_sync(getUserPlayer().getGameId());
+            Game game = null;
+            if (getUserPlayer().getGameId() != null) {
+                game = getGame_sync(getUserPlayer().getGameId());
+            }
             Integer playerId = getUserPlayer().getId();
 
             if (game != null) {
-                if (getSecondPlayer() == null) {
+                getUserPlayer().setGameId(null);
+                if (game.getPlayersCount() < 2) {
                     if (deletePlayerOnQuit)
                         deletePlayer_sync(playerId);
+                    else {
+                        updatePlayer_sync(getUserPlayer());
+                    }
                     deleteGame_sync(game.getId());
                 } else {
                     if (deletePlayerOnQuit)
                         deletePlayer_sync(playerId);
                     else {
-                        getUserPlayer().setGameId(null);
                         updatePlayer_sync(getUserPlayer());
                     }
 
+                    // edit game: set null(s) in game
                     if (game.getWhitePlayerId() != null &&
                             game.getWhitePlayerId().equals(playerId)) {
                         game.setWhitePlayerId(null);
-                    }
-                    else if (game.getBlackPlayerId() != null &&
+                    } else if (game.getBlackPlayerId() != null &&
                             game.getBlackPlayerId().equals(playerId)) {
                         game.setBlackPlayerId(null);
                     }
@@ -407,8 +413,6 @@ public class GameManager {
                     }
 
                     game.setGameStarted(false);
-                    setSecondPlayer(null);
-                    game.setBoard(MultiActivity.cleanBoard);
                     updateGame_sync(game);
                 }
             } else if (deletePlayerOnQuit) {
@@ -416,7 +420,7 @@ public class GameManager {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 }
